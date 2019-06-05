@@ -1,6 +1,6 @@
 version: 2.1
 commands:
-  run-database:
+  run_database:
     description: "Run a MySQL compatible docker container"
     parameters:
       DB_NAME:
