@@ -127,8 +127,8 @@ workflows:
   version: 2
   all:
     jobs:
-      - build:
-      - test
+      - build
+      - test:
           requires:
             - build
       - build-behat:
