@@ -115,11 +115,11 @@ jobs:
       - image: docker:stable-git
     steps:
       - setup_remote_docker
-      - load_docker_image
+      - load_docker_image:
           image_name: docker-image-behat
       - run_database:
           DB_NAME: db_behat
-      - run_docker_image
+      - run_docker_image:
           image_name: docker-image-behat
       - test_neos_demosite
 
