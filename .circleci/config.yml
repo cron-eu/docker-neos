@@ -9,7 +9,7 @@ jobs:
 
       - run:
           name: Build the docker image
-          command: docker build --tag=neos-test
+          command: docker build --tag=neos-test .
       - run:
           name: Run the docker DB container
           # use the official mariadb image using default values (user/pass etc.)
