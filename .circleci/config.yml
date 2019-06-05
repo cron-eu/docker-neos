@@ -34,7 +34,7 @@ commands:
       - persist_to_workspace:
           root: /tmp
           paths:
-            - *.tar
+            - '*.tar'
 
   load_docker_image:
     description: Loads a docker images from workspace
