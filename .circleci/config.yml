@@ -104,9 +104,9 @@ jobs:
       - checkout
       - setup_remote_docker
       # we load the default image because our image uses it for building
-      - load_docker_image
+      - load_docker_image:
           image_name: docker-image
-      - build_docker_image
+      - build_docker_image:
           image_name: docker-image-behat
           file: Dockerfile-behat
 
