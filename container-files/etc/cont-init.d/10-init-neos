@@ -109,5 +109,5 @@ cd "${WWW_ROOT}"
 if [ "${SITE_INIT_SCRIPT}" -a -f "${SITE_INIT_SCRIPT}" ]; then
 	  echo "SITE_INIT_SCRIPT ENV var set, executing FLOW_CONTEXT=${FLOW_CONTEXT} $(pwd)/${SITE_INIT_SCRIPT}.."
 		chmod +x "./${SITE_INIT_SCRIPT}"
-		sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} "./${SITE_INIT_SCRIPT}"
+		sudo -u www-data -E FLOW_CONTEXT=${FLOW_CONTEXT} "./${SITE_INIT_SCRIPT}"
 fi
