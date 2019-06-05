@@ -1,26 +1,43 @@
-version: 2
-jobs:
+version: 2.1
+commands:
   run-database:
-    docker:
-      - image: docker:stable-git
+    description: "Run a MySQL compatible docker container"
+    parameters:
+      DB_NAME:
+        type: string
+        default: "db"
     steps:
       - run:
           name: Run the docker DB container
           # use the official mariadb image using default values (user/pass etc.)
           command: |
-            docker run -d --name=db --env="MYSQL_DATABASE=db" \
+            docker run -d --name=db \
+              --env="MYSQL_DATABASE=<< parameters.DB_NAME >>" \
+              --env="MYSQL_USER=admin" \
+              --env="MYSQL_PASSWORD=pass" \
+              --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
               --env="MYSQL_ROOT_PASSWORD=password" \
               mariadb:latest
-  build:
-    docker:
-      - image: docker:stable-git
+
+  build_docker_image:
+    description: "Build a Docker Image"
+    parameters:
+      name:
+        type: string
+        default: 'docker-image'
+      file:
+        type: string
+        default: Dockerfile
     steps:
-      - checkout
-      - setup_remote_docker
       - run:
-          name: Build the docker image
-          command: docker build --tag=neos-test .
-  test:
+          command: docker build --tag=<< parameters.name >> -f << parameters.file >> .
+
+  run_docker_image:
+    description: "Runs a docker image in foreground"
+    parameters:
+      name:
+        type: string
+        default: 'docker-image'
     steps:
       - run:
           name: Run the docker web container
@@ -32,8 +49,12 @@ jobs:
               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
-              neos-test
+              << parameters.name >>
       - run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
+
+  test_neos_demosite:
+    description: "Test if the Neos DemoSite renders OK"
+    steps:
       - run:
           name: Do basic front-end tests
           command: |
@@ -42,51 +63,37 @@ jobs:
              && curl -s -L --head http://web | grep "X-Flow-Powered" \
              && curl -s -L http://web | grep "This website is powered by Neos"'
 
-  build-behat:
+jobs:
+  test:
     docker:
       - image: docker:stable-git
     steps:
       - checkout
       - setup_remote_docker
-      - run:
-          name: Build the behat docker image
-          command: docker build --tag=neos-behat-test -f Dockerfile-behat .
+      - run_database
+      - build_docker_image
+      - run_docker_image
+      - test_neos_demosite
+
   test-behat:
+    docker:
+      - image: docker:stable-git
     steps:
-      - run:
-          name: Run the behat docker web container
-          background: true
-          command: |
-            docker run --name=web --link=db:db \
-              --env="DB_USER=root" \
-              --env="DB_PASS=password" \
-              --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
-              --env="VERSION=3.3" \
-              --env="SITE_PACKAGE=Neos.Demo" \
-              neos-behat-test
-      - run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
-      - run:
-          name: Do basic front-end tests
-          command: |
-            docker run --rm --volumes-from=web --link=web alpine /bin/sh -c 'apk add curl -q \
-             && curl -s -L --head http://web | grep "HTTP/1.1 200 OK" \
-             && curl -s -L --head http://web | grep "X-Flow-Powered" \
-             && curl -s -L http://web | grep "This website is powered by Neos"'
+      - checkout
+      - setup_remote_docker
+      - run_database:
+          DB_NAME: db_behat
+      - build_docker_image
+      - build_docker_image:
+          file: Dockerfile-behat
+      - run_docker_image
+      - test_neos_demosite
 
 workflows:
   version: 2
   all:
     jobs:
-      - run-database
-      - build
-      - build-behat:
-          requires:
-            - build:
-      - test:
-          requires:
-            - run-database
-            - build
+      - test
       - test-behat:
           requires:
-            - run-database
-            - build-behat
+            - test
