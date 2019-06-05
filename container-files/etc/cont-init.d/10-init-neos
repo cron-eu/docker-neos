@@ -1,0 +1,113 @@
+#!/usr/bin/with-contenv /bin/bash
+set -ex
+
+# Layout default directory structure\
+mkdir -p /data/logs
+mkdir -p /data/tmp/nginx
+
+###
+# Initial provisioning
+###
+/provision-neos.sh
+
+# flow cmd wrapper to execute flow as user
+FLOW="sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
+
+# root dir where SITE_PACKAGE repo resides
+WWW_ROOT="/data/www"
+
+# On first launch unpack provisioned files into /data/www
+if [ -f /data/www/composer.json ] || [ -z "$REPOSITORY_URL" -a ! -f "/src/composer.json" ]
+then
+	echo "Do nothing, provisioned files were already moved"
+else
+	if [ -d /data/www/ ]
+	then
+		echo "/data/www/ has probably been locally mounted. Moving provisioned files into it."
+		# Move files our from /data/www/, in case there's already something partially mounted (e.g. a locally mounted package folder)
+		rsync -a /data/www-provisioned/ /data/www/
+	else
+		echo "Symlink /data/www/ to provisioned files"
+		ln -s /data/www-provisioned /data/www
+	fi
+fi
+
+cd ${WWW_ROOT} || exit 1
+
+###
+# Check if DB already exists and is not empty
+###
+
+# wait for the mysql server to come up
+while ! mysqladmin ping -u "${DB_USER}" -p"${DB_PASS}" -h"${DB_HOST}" --silent; do
+	echo "waiting for the db container to become available.."
+  sleep 2
+done
+
+set +e
+RESULT=`mysql -u $DB_USER -p$DB_PASS -h $DB_HOST -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema ='${DB_DATABASE}'" --batch --skip-column-names`
+set -e
+if [[ $RESULT -gt 0 ]];
+	then
+		echo "Database already exists, skipping DB import"
+	else
+		###
+		# Import DB dump from AWS
+		###
+		if [ -z "$AWS_BACKUP_ARN" ]
+			then
+				echo "AWS_BACKUP_ARN not set, skipping"
+			else
+				if [ -z "$AWS_ENDPOINT" ]
+					then
+						aws s3 cp ${AWS_BACKUP_ARN}db.sql /data/www/Data/Persistent/db.sql
+					else
+						aws s3 --endpoint-url=$AWS_ENDPOINT cp ${AWS_BACKUP_ARN}db.sql /data/www/Data/Persistent/db.sql
+				fi
+		fi
+
+		###
+		# Create and import DB
+		###
+		echo "CREATE DATABASE IF NOT EXISTS $DB_DATABASE" | mysql -u $DB_USER -p$DB_PASS -h $DB_HOST
+		if [ -f /data/www/Data/Persistent/db.sql ]
+			then
+				mysql -u $DB_USER -p$DB_PASS -h $DB_HOST $DB_DATABASE < /data/www/Data/Persistent/db.sql
+		fi
+
+		${FLOW} doctrine:migrate --quiet
+
+		if [ -z "$SITE_PACKAGE" ]
+			then
+				echo "SITE_PACKAGE not set"
+			else
+				${FLOW} site:import --package-key=$SITE_PACKAGE
+		fi
+
+		if [ -z "$ADMIN_PASSWORD" ]
+			then
+				echo "No ADMIN_PASSWORD set"
+			else
+				${FLOW} user:create --roles='Administrator' --username='admin' --password=$ADMIN_PASSWORD --first-name='UpdateMe' --last-name='Now'
+		fi
+
+		if [ -z "$DONT_PUBLISH_PERSISTENT" ]
+			then
+				${FLOW} resource:publish
+		fi
+fi
+
+if [ "$(ls -A /data/www/Web/_Resources/Static/)" ]
+	then
+		echo "No need to publish static resources"
+	else
+		${FLOW} resource:publish --collection static
+fi
+
+cd "${WWW_ROOT}"
+
+if [ "${SITE_INIT_SCRIPT}" -a -f "${SITE_INIT_SCRIPT}" ]; then
+	  echo "SITE_INIT_SCRIPT ENV var set, executing FLOW_CONTEXT=${FLOW_CONTEXT} $(pwd)/${SITE_INIT_SCRIPT}.."
+		chmod +x "./${SITE_INIT_SCRIPT}"
+		sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} "./${SITE_INIT_SCRIPT}"
+fi

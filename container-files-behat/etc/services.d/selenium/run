@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv /usr/bin/execlineb
+/usr/bin/java -jar /usr/bin/selenium-server-standalone.jar
