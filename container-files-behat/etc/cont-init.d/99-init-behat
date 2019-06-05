@@ -6,6 +6,7 @@ FLOW="sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
 
 echo "127.0.0.1 behat.dev.local" >> /etc/hosts
 
+chmod +x /setup-behat-yml.sh
 /setup-behat-yml.sh "behat.dev.local:${WWW_PORT}"
 
 # root dir where SITE_PACKAGE repo resides
@@ -13,7 +14,7 @@ WWW_ROOT="/data/www"
 
 cd ${WWW_ROOT} || exit 1
 
-if [ ${FLOW} help | grep behat:setup >/dev/null ; then
+if ${FLOW} help | grep behat:setup >/dev/null ; then
 	${FLOW} behat:setup
 	${FLOW} cache:warmup
 fi
