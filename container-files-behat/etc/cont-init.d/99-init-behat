@@ -14,7 +14,7 @@ WWW_ROOT="/data/www"
 
 cd ${WWW_ROOT} || exit 1
 
-if [ ${FLOW} help | grep behat:setup >/dev/null ; then
+if ${FLOW} help | grep behat:setup >/dev/null ; then
 	${FLOW} behat:setup
 	${FLOW} cache:warmup
 fi
