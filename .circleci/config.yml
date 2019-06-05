@@ -22,7 +22,7 @@ commands:
   build_docker_image:
     description: "Build a Docker Image"
     parameters:
-      name:
+      image_name:
         type: string
         default: 'docker-image'
       file:
@@ -30,12 +30,12 @@ commands:
         default: Dockerfile
     steps:
       - run:
-          command: docker build --tag=<< parameters.name >> -f << parameters.file >> .
+          command: docker build --tag=<< parameters.image_name >> -f << parameters.file >> .
 
   run_docker_image:
     description: "Runs a docker image in foreground"
     parameters:
-      name:
+      image_name:
         type: string
         default: 'docker-image'
     steps:
@@ -49,7 +49,7 @@ commands:
               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
-              << parameters.name >>
+              << parameters.image_name >>
       - run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
 
   test_neos_demosite:
