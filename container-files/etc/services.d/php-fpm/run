@@ -1,2 +1,2 @@
 #!/usr/bin/with-contenv /usr/bin/execlineb
-/usr/local/sbin/php-fpm -y /usr/local/etc/php-fpm.conf -R
+s6-notifyoncheck -s 500 -c "test -S /var/run/php-fpm.sock" /usr/local/sbin/php-fpm -y /usr/local/etc/php-fpm.conf -R
