@@ -20,7 +20,7 @@ commands:
               mariadb:latest
 
   build_docker_image:
-    description: "Build a Docker Image"
+    description: "Build a Docker Image and save it in the workspace"
     parameters:
       image_name:
         type: string
@@ -29,8 +29,25 @@ commands:
         type: string
         default: Dockerfile
     steps:
+      - run: docker build --tag=<< parameters.image_name >> -f << parameters.file >> .
+      - run: docker save << parameters.image_name >> > /tmp/<< parameters.image_name >>.tar
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - *.tar
+
+  load_docker_image:
+    description: Loads a docker images from workspace
+    parameters:
+      image_name:
+        type: string
+        default: 'docker-image'
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
-          command: docker build --tag=<< parameters.image_name >> -f << parameters.file >> .
+          name: Load a docker image from workspace
+          command: docker load -i /tmp/workspace/<< parameters.image_name >>.tar
 
   run_docker_image:
     description: "Runs a docker image in foreground"
@@ -44,8 +61,6 @@ commands:
           background: true
           command: |
             docker run --name=web --link=db:db \
-              --env="DB_USER=root" \
-              --env="DB_PASS=password" \
               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
@@ -64,36 +79,61 @@ commands:
              && curl -s -L http://web | grep "This website is powered by Neos"'
 
 jobs:
-  test:
+  build:
     docker:
       - image: docker:stable-git
     steps:
       - checkout
       - setup_remote_docker
-      - run_database
       - build_docker_image
+
+  test:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - setup_remote_docker
+      - run_database
+      - load_docker_image
       - run_docker_image
       - test_neos_demosite
+
+  build-behat:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      # we load the default image because our image uses it for building
+      - load_docker_image
+          image_name: docker-image
+      - build_docker_image
+          image_name: docker-image-behat
+          file: Dockerfile-behat
 
   test-behat:
     docker:
       - image: docker:stable-git
     steps:
-      - checkout
       - setup_remote_docker
+      - load_docker_image
+          image_name: docker-image-behat
       - run_database:
           DB_NAME: db_behat
-      - build_docker_image
-      - build_docker_image:
-          file: Dockerfile-behat
       - run_docker_image
+          image_name: docker-image-behat
       - test_neos_demosite
 
 workflows:
   version: 2
   all:
     jobs:
+      - build:
       - test
+          requires:
+            - build
+      - build-behat:
+          requires:
+            - build
       - test-behat:
           requires:
-            - test
+            - build-behat
