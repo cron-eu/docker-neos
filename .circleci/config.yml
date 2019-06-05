@@ -1,30 +1,34 @@
 version: 2
 jobs:
-  build-and-test:
+  run-database:
     docker:
       - image: docker:stable-git
     steps:
-      - checkout
-      - setup_remote_docker
-
-      - run:
-          name: Build the docker image
-          command: docker build --tag=neos-test .
       - run:
           name: Run the docker DB container
           # use the official mariadb image using default values (user/pass etc.)
           command: |
             docker run -d --name=db --env="MYSQL_DATABASE=db" \
-              --env="MYSQL_DATABASE=db" \
-              --env="MYSQL_USER=admin" \
-              --env="MYSQL_PASSWORD=pass" \
-              --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
+              --env="MYSQL_ROOT_PASSWORD=password" \
               mariadb:latest
+  build:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build the docker image
+          command: docker build --tag=neos-test .
+  test:
+    steps:
       - run:
           name: Run the docker web container
           background: true
           command: |
             docker run --name=web --link=db:db \
+              --env="DB_USER=root" \
+              --env="DB_PASS=password" \
               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
@@ -38,8 +42,51 @@ jobs:
              && curl -s -L --head http://web | grep "X-Flow-Powered" \
              && curl -s -L http://web | grep "This website is powered by Neos"'
 
+  build-behat:
+    docker:
+      - image: docker:stable-git
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build the behat docker image
+          command: docker build --tag=neos-behat-test -f Dockerfile-behat .
+  test-behat:
+    steps:
+      - run:
+          name: Run the behat docker web container
+          background: true
+          command: |
+            docker run --name=web --link=db:db \
+              --env="DB_USER=root" \
+              --env="DB_PASS=password" \
+              --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+              --env="VERSION=3.3" \
+              --env="SITE_PACKAGE=Neos.Demo" \
+              neos-behat-test
+      - run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
+      - run:
+          name: Do basic front-end tests
+          command: |
+            docker run --rm --volumes-from=web --link=web alpine /bin/sh -c 'apk add curl -q \
+             && curl -s -L --head http://web | grep "HTTP/1.1 200 OK" \
+             && curl -s -L --head http://web | grep "X-Flow-Powered" \
+             && curl -s -L http://web | grep "This website is powered by Neos"'
+
 workflows:
   version: 2
   all:
     jobs:
-      - build-and-test
+      - run-database
+      - build
+      - build-behat:
+          requires:
+            - build:
+      - test:
+          requires:
+            - run-database
+            - build
+      - test-behat:
+          requires:
+            - run-database
+            - build-behat
