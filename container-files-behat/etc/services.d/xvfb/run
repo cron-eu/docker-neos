@@ -1,2 +1,4 @@
 #!/usr/bin/with-contenv /usr/bin/execlineb
-s6-notifyoncheck /bin/sh -c "/usr/bin/Xvfb $DISPLAY -ac -screen 0 $SCREEN_DIMENSION"
+importas display DISPLAY
+importas dimension SCREEN_DIMENSION
+s6-notifyoncheck /usr/bin/Xvfb $display -ac -screen 0 $dimension

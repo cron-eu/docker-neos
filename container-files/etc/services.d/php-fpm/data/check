@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv /usr/bin/execlineb
+test -S /var/run/php-fpm.sock
