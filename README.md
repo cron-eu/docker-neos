@@ -1,18 +1,18 @@
-# [croneu/neos](https://cloud.docker.com/u/croneu/repository/docker/croneu/neos) and [croneu/neos-behat](https://cloud.docker.com/u/croneu/repository/docker/croneu/neos-behat)
+# [croneu/neos](https://hub.docker.com/r/croneu/neos)
 
-[![](https://images.microbadger.com/badges/image/croneu/neos.svg)](https://microbadger.com/images/croneu/neos "Neos Alpine")
+[![](https://images.microbadger.com/badges/image/croneu/neos.svg)](https://microbadger.com/images/croneu/neos "croneu/neos")
 [![](https://images.microbadger.com/badges/version/croneu/neos.svg)](https://microbadger.com/images/croneu/neos "Neos Dev Docker Image")
 [![](https://circleci.com/gh/cron-eu/docker-neos.svg?style=shield)](https://circleci.com/gh/cron-eu/docker-neos/)
 
-<!-- # [croneu/neos-behat](https://cloud.docker.com/u/croneu/repository/docker/croneu/neos-behat)
+# [croneu/neos-behat](https://hub.docker.com/r/croneu/neos-behat)
 
-[![](https://images.microbadger.com/badges/image/croneu/neos-behat.svg)](https://microbadger.com/images/croneu/neos-behat "Neos Alpine")
+[![](https://images.microbadger.com/badges/image/croneu/neos-behat.svg)](https://microbadger.com/images/croneu/neos-behat "croneu/neos-behat")
 [![](https://images.microbadger.com/badges/version/croneu/neos-behat.svg)](https://microbadger.com/images/croneu/neos-behat "Neos Dev Docker Image")
-[![](https://circleci.com/gh/cron-eu/docker-neos.svg?style=shield)](https://circleci.com/gh/cron-eu/docker-neos/) -->
+[![](https://circleci.com/gh/cron-eu/docker-neos.svg?style=shield)](https://circleci.com/gh/cron-eu/docker-neos/)
 
 ## Abstract
 
-This is an opinionated Docker Image for [Neos](https://www.neos.io) Development.
+Opinionated Docker Images for [Neos](https://www.neos.io) Development.
 
 ## Compatibility
 
@@ -25,8 +25,8 @@ This repository builds two distinct Docker Images:
 
 | Docker Image Name | Description |
 | ----------------- | ----------- |
-| [croneu/neos](https://cloud.docker.com/u/croneu/repository/docker/croneu/neos) | Base docker image, useful to run a Neos project in docker for development purposes.|
-| [croneu/neos-behat](https://cloud.docker.com/u/croneu/repository/docker/croneu/neos-behat) | Base image with some Add-Ons for Behat Tests (supports also unattended use for e.g. circleCI/Travis) |
+| [croneu/neos](https://hub.docker.com/r/croneu/neos) | Base docker image, useful to run a Neos project in docker for development purposes.|
+| [croneu/neos-behat](https://hub.docker.com/r/croneu/neos-behat) | Base image with some Add-Ons for Behat Tests (supports also unattended use for e.g. circleCI/Travis) |
 
 ## Usage in a nutshell
 
