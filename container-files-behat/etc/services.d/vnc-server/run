@@ -1,2 +1,3 @@
 #!/usr/bin/with-contenv /usr/bin/execlineb
-/bin/sh -c "/usr/local/bin/x11vnc -forever -shared -rfbport 5900 -display $DISPLAY -passwd $VNC_PASSWORD"
+foreground { s6-svwait -U /var/run/s6/services/xvfb }
+/usr/local/bin/x11vnc -forever -shared -rfbport 5900 -display $DISPLAY -passwd $VNC_PASSWORD

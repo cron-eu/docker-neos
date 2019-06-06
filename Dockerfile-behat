@@ -18,6 +18,9 @@ RUN apk --update add --virtual=.x11vncdeps gcc g++ automake autoconf make openss
   && cd / && rm -rf /src \
   && rm -rf /var/cache/apk/*
 
+# required for the xvfb notifyoncheck script
+RUN apk add --no-cache xdpyinfo
+
 ENV \
   DISPLAY=:99 \
   SCREEN_DIMENSION=1600x1000x24 \
