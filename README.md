@@ -88,6 +88,43 @@ interesting things happen, with:
 docker-compose logs -f web
 ```
 
+### Web Server
+
+The `web` container will start a web-server listening on `WWW_PORT`.
+To access the web-server, make sure you have a DNS entry in your local `/etc/hosts`
+or local DNS server, e.g. (when using docker-machine):
+
+`/etc/hosts:`
+```
+192.168.99.100 dev.neos-playground.docker neos-playground.docker
+```
+
+Then you can access the web-server using:
+
+```bash
+open http://dev.neos-playground.docker:8080/
+```
+
+To use the `Production` `FLOW_CONTEXT`, use the second hostname (without `dev.``):
+
+```bash
+open http://neos-playground.docker:8080/
+```
+
+### FLOW_CONTEXT magic
+
+`FLOW_CONTEXT` will be set to `Production` by default. For development purposes,
+use a host name with a `dev` subdomain, like `dev.`, this will use the `Development`
+context instead:
+
+| Hostname Pattern | FLOW_CONTEXT |
+| -------- | ------------ |
+| dev.*    | Development  |
+| dev.behat.* | Development/Behat |
+| _else_   | Production   |
+
+### SSH Access
+
 You can then SSH into the container using for example:
 
 ```bash
@@ -235,12 +272,6 @@ If so, the initialization logic will perform a `git clone`.
 Another alternative is to use a Docker mount or volume. Mount the source dir to
 `/src` and make sure not to set the `REPOSITORY_URL`. Then the init logic will just
 `rsync -a` from /src to `/data/www-provisioned` instead.
-
-## Flow/Neos Context
-
-`FLOW_CONTEXT` will be set to `Production` by default. For development use a host name
-with a `dev` subdomain, like `dev.mysite.local`, this will use the `Development`
-context instead.
 
 ## Docker Image Development
 
