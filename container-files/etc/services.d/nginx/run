@@ -1,3 +1,4 @@
 #!/usr/bin/execlineb -P
 foreground { s6-svwait -U /var/run/s6/services/php-fpm }
+foreground { echo "starting nginx.." }
 nginx
