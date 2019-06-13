@@ -2,6 +2,4 @@
 foreground { s6-svwait -U /var/run/s6/services/xvfb }
 foreground { sleep 1 }
 foreground { echo "starting selenium server.." }
-redirfd -w 1 /dev/null
-redirfd -w 2 /dev/null
 /usr/bin/java -jar /usr/bin/selenium-server-standalone.jar
