@@ -1,4 +1,15 @@
 #!/usr/bin/with-contenv /usr/bin/execlineb
 foreground { s6-svwait -U /var/run/s6/services/xvfb }
-foreground { echo "starting selenium server.." }
-/usr/bin/java -jar /usr/bin/selenium-server-standalone.jar
+
+# use the selenium jar from the ~/bin directory, if available
+ifelse { test -s /data/www/bin/selenium-server.jar }
+{
+  define selenium_jar /data/www/bin/selenium-server.jar
+  foreground { echo "starting selenium server (using /data/www/bin/selenium-server.jar) .." }
+  /usr/bin/java -jar $selenium_jar
+}
+
+# else, use the default jar from /usr/bin
+define selenium_jar /usr/bin/selenium-server-standalone.jar
+foreground { echo "starting selenium server .." }
+/usr/bin/java -jar $selenium_jar
