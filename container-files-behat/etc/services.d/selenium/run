@@ -1,5 +1,4 @@
 #!/usr/bin/with-contenv /usr/bin/execlineb
 foreground { s6-svwait -U /var/run/s6/services/xvfb }
-foreground { sleep 1 }
 foreground { echo "starting selenium server.." }
 /usr/bin/java -jar /usr/bin/selenium-server-standalone.jar
