@@ -6,10 +6,10 @@ ifelse { test -s /data/www/bin/selenium-server.jar }
 {
   define selenium_jar /data/www/bin/selenium-server.jar
   foreground { echo "starting selenium server (using /data/www/bin/selenium-server.jar) .." }
-  /usr/bin/java -jar $selenium_jar
+  s6-notifyoncheck /usr/bin/java -jar $selenium_jar
 }
 
 # else, use the default jar from /usr/bin
 define selenium_jar /usr/bin/selenium-server-standalone.jar
 foreground { echo "starting selenium server .." }
-/usr/bin/java -jar $selenium_jar
+s6-notifyoncheck /usr/bin/java -jar $selenium_jar

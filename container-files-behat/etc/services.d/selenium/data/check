@@ -1,0 +1,2 @@
+#!/usr/bin/with-contenv /usr/bin/execlineb
+nc -w 2 127.0.0.1 4444

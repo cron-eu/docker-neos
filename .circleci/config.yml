@@ -127,7 +127,7 @@ jobs:
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
              docker-image-behat \
-             sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature
+             sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
 
 workflows:
   version: 2
