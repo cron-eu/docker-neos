@@ -17,7 +17,7 @@ commands:
               --env="MYSQL_PASSWORD=pass" \
               --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
               --env="MYSQL_ROOT_PASSWORD=password" \
-              mariadb:latest
+              mariadb:10.3
 
   build_docker_image:
     description: "Build a Docker Image and save it in the workspace"
