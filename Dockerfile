@@ -107,6 +107,7 @@ RUN deluser www-data \
 	&& echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& chown 80:80 -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
+	&& chmod +x /gitlab-keys.sh \
 	&& /bin/bash -c "source /init-php-conf.sh"
 
 # Expose ports
