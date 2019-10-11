@@ -9,7 +9,7 @@ IFS="$(printf '\n\t')"
 GITLAB_URL="$1"
 user="$2"
 
-if [ -z "$GITLAB_URL" ];
+if [ -z "$GITLAB_URL" ]; then
   echo "ERROR: \$GITLAB_URL ENV var not set. See the documentation."
   exit 1
 fi
