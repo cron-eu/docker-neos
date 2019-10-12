@@ -54,7 +54,9 @@ services:
     environment:
       WWW_PORT: 8080
       ADMIN_PASSWORD: 'password'
-      IMPORT_GITHUB_PUB_KEYS: 'your-github-user-name'
+      IMPORT_GITHUB_PUB_KEYS: 'my-github-username'
+      #IMPORT_GITLAB_PUB_KEYS: 'my-gitlab-username'
+      #GITLAB_URL: 'https://gitlab.my-company.org'
       COMPOSER_INSTALL_PARAMS: '--no-dev'
   db:
     image: mariadb:latest
@@ -255,6 +257,8 @@ This image supports following environment variable for automatically configuring
 |COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-source`|
 |XDEBUG_CONFIG|Pass xdebug config string, e.g. `idekey=PHPSTORM remote_enable=1`. If no config provided the Xdebug extension will be disabled (safe for production), off by default|
 |IMPORT_GITHUB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Github account(s).|
+|IMPORT_GITLAB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Gitlab account(s). Note: please also setup the GITLAB_URL ENV var, else this will throw an error.|
+|GITLAB_URL| Your HTTPS Gitlab Server URL, e.g. https://gitlab.my-company.com (without the trailing /)|
 |DB_DATABASE|Database name, defaults to `db`|
 |DB_HOST|Database host, defaults to `db`|
 |DB_PASS|Database password, defaults to `pass`|

@@ -35,13 +35,20 @@ chmod 600 /data/.ssh/authorized_keys
 PASS=$(pwgen -c -n -1 16)
 echo "www-data:$PASS" | chpasswd
 
-if [ -z "${IMPORT_GITHUB_PUB_KEYS+xxx}" ] || [ -z "${IMPORT_GITHUB_PUB_KEYS}" ]; then
-	echo "WARNING: env variable \$IMPORT_GITHUB_PUB_KEYS is not set. Please set it to have access to this container via SSH."
-else
+if [ -n "${IMPORT_GITHUB_PUB_KEYS}" ]; then
 	# Read passed to container ENV IMPORT_GITHUB_PUB_KEYS variable with coma-separated
 	# user list and add public key(s) for these users to authorized_keys on 'www-data' account.
 	for user in $(echo $IMPORT_GITHUB_PUB_KEYS | tr "," "\n"); do
 		echo "user: $user"
 		su www-data -c "/github-keys.sh $user"
 	done
+elif [ -n "${IMPORT_GITLAB_PUB_KEYS}" ]; then
+	# Read passed to container ENV IMPORT_GITLAB_PUB_KEYS variable with coma-separated
+	# user list and add public key(s) for these users to authorized_keys on 'www-data' account.
+	for user in $(echo $IMPORT_GITLAB_PUB_KEYS | tr "," "\n"); do
+		echo "user: $user"
+		su www-data -c "/gitlab-keys.sh ${GITLAB_URL} $user"
+	done
+else
+	echo "WARNING: env variable \$IMPORT_GITHUB_PUB_KEYS or \$IMPORT_GITLAB_PUB_KEYS is not set. Please set it to have access to this container via SSH."
 fi
