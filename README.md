@@ -54,7 +54,9 @@ services:
     environment:
       WWW_PORT: 8080
       ADMIN_PASSWORD: 'password'
-      IMPORT_GITHUB_PUB_KEYS: 'your-github-user-name'
+      IMPORT_GITHUB_PUB_KEYS: 'my-github-username'
+      #IMPORT_GITLAB_PUB_KEYS: 'my-gitlab-username'
+      #GITLAB_URL: 'https://gitlab.my-company.org'
       COMPOSER_INSTALL_PARAMS: '--no-dev'
   db:
     image: mariadb:latest
