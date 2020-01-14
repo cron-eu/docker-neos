@@ -6,6 +6,16 @@ function update_settings_yaml() {
 
   cd /data/www-provisioned
   create_settings_yaml $settings_file
+
+  [ -f $settings_file ] || return 0
+
+  echo "Configuring $settings_file..."
+ 	sed -i -r "1,/driver:/s/port: .+?/driver: pdo_mysql/g" $settings_file
+ 	sed -i -r "1,/dbname:/s/dbname: .+?/dbname: '%env:DB_DATABASE%'/g" $settings_file
+ 	sed -i -r "1,/user:/s/user: .+?/user: '%env:DB_USER%'/g" $settings_file
+ 	sed -i -r "1,/password:/s/password: .+?/password: '%env:DB_PASS%'/g" $settings_file
+ 	sed -i -r "1,/host:/s/host: .+?/host: '%env:DB_HOST%'/g" $settings_file
+ 	sed -i -r "1,/port:/s/port: .+?/port: 3306/g" $settings_file
 }
 
 # set/update docker env settings (required for running the flow command in CLI mode)
