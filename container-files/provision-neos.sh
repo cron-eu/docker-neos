@@ -8,6 +8,16 @@ function update_settings_yaml() {
   create_settings_yaml $settings_file
 }
 
+# set/update docker env settings (required for running the flow command in CLI mode)
+function update_global_env_vars() {
+  cat <<EOF >/etc/profile.d/docker_env
+export DB_DATABASE="${DB_DATABASE}"
+export DB_USER="${DB_USER}"
+export DB_PASS="${DB_PASS}"
+export DB_HOST="${DB_HOST}"
+EOF
+}
+
 function update_neos_settings() {
   if [ -z "${FLOW_CONTEXT}" ]; then
 	  update_settings_yaml Configuration/Settings.yaml
@@ -26,6 +36,8 @@ function create_settings_yaml() {
     cp /Settings.yaml /data/www-provisioned/$settings_file
   fi
 }
+
+update_global_env_vars
 
 # Provision conainer at first run
 if [ -f /data/www/composer.json ] || [ -f /data/www-provisioned/composer.json ] || [ -z "$REPOSITORY_URL" -a ! -f "/src/composer.json" ]
@@ -56,6 +68,7 @@ else
 
   composer install $COMPOSER_INSTALL_PARAMS
   update_neos_settings
+
 
   # Set permissions
   chown www-data:www-data -R /tmp/
