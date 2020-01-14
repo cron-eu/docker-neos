@@ -11,7 +11,7 @@ mkdir -p /data/tmp/nginx
 /provision-neos.sh
 
 # flow cmd wrapper to execute flow as user
-FLOW="sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
+FLOW="sudo -Eu www-data FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
 
 # root dir where SITE_PACKAGE repo resides
 WWW_ROOT="/data/www"
@@ -109,5 +109,5 @@ cd "${WWW_ROOT}"
 if [ "${SITE_INIT_SCRIPT}" -a -f "${SITE_INIT_SCRIPT}" ]; then
 	  echo "SITE_INIT_SCRIPT ENV var set, executing FLOW_CONTEXT=${FLOW_CONTEXT} $(pwd)/${SITE_INIT_SCRIPT}.."
 		chmod +x "./${SITE_INIT_SCRIPT}"
-		sudo -u www-data --preserve-env=FLOW_CONTEXT,${SITE_INIT_ENV_VARS} "./${SITE_INIT_SCRIPT}"
+		sudo -u www-data --preserve-env=FLOW_CONTEXT,DB_DATABASE,DB_USER,DB_PASS,DB_HOST,${SITE_INIT_ENV_VARS} "./${SITE_INIT_SCRIPT}"
 fi
