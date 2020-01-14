@@ -70,7 +70,6 @@ else
   composer install $COMPOSER_INSTALL_PARAMS
   update_neos_settings
 
-
   # Set permissions
   chown www-data:www-data -R /tmp/
 	chown www-data:www-data -R /data/
