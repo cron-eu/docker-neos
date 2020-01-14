@@ -10,12 +10,13 @@ function update_settings_yaml() {
 
 # set/update docker env settings (required for running the flow command in CLI mode)
 function update_global_env_vars() {
-  cat <<EOF >/etc/profile.d/docker_env
+  cat <<EOF >/etc/profile.d/docker_env.sh
 export DB_DATABASE="${DB_DATABASE}"
 export DB_USER="${DB_USER}"
 export DB_PASS="${DB_PASS}"
 export DB_HOST="${DB_HOST}"
 EOF
+  chmod +x /etc/profile.d/docker_env.sh
 }
 
 function update_neos_settings() {
