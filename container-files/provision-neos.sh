@@ -10,23 +10,12 @@ function update_settings_yaml() {
   [ -f $settings_file ] || return 0
 
   echo "Configuring $settings_file..."
- 	sed -i -r "1,/driver:/s/port: .+?/driver: pdo_mysql/g" $settings_file
- 	sed -i -r "1,/dbname:/s/dbname: .+?/dbname: '%env:DB_DATABASE%'/g" $settings_file
- 	sed -i -r "1,/user:/s/user: .+?/user: '%env:DB_USER%'/g" $settings_file
- 	sed -i -r "1,/password:/s/password: .+?/password: '%env:DB_PASS%'/g" $settings_file
- 	sed -i -r "1,/host:/s/host: .+?/host: '%env:DB_HOST%'/g" $settings_file
- 	sed -i -r "1,/port:/s/port: .+?/port: 3306/g" $settings_file
-}
-
-# set/update docker env settings (required for running the flow command in CLI mode)
-function update_global_env_vars() {
-  cat <<EOF >/etc/profile.d/docker_env.sh
-export DB_DATABASE="${DB_DATABASE}"
-export DB_USER="${DB_USER}"
-export DB_PASS="${DB_PASS}"
-export DB_HOST="${DB_HOST}"
-EOF
-  chmod +x /etc/profile.d/docker_env.sh
+	sed -i -r "1,/driver:/s/port: .+?/driver: pdo_mysql/g" $settings_file
+	sed -i -r "1,/dbname:/s/dbname: .+?/dbname: \"$DB_DATABASE\"/g" $settings_file
+	sed -i -r "1,/user:/s/user: .+?/user: \"$DB_USER\"/g" $settings_file
+	sed -i -r "1,/password:/s/password: .+?/password: \"$DB_PASS\"/g" $settings_file
+	sed -i -r "1,/host:/s/host: .+?/host: \"$DB_HOST\"/g" $settings_file
+	sed -i -r "1,/port:/s/port: .+?/port: 3306/g" $settings_file
 }
 
 function update_neos_settings() {
@@ -47,8 +36,6 @@ function create_settings_yaml() {
     cp /Settings.yaml /data/www-provisioned/$settings_file
   fi
 }
-
-update_global_env_vars
 
 # Provision conainer at first run
 if [ -f /data/www/composer.json ] || [ -f /data/www-provisioned/composer.json ] || [ -z "$REPOSITORY_URL" -a ! -f "/src/composer.json" ]
