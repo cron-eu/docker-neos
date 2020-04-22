@@ -279,8 +279,9 @@ Another alternative is to use a Docker mount or volume. Mount the source dir to
 
 ## Using Xdebug with Flow / Neos
 
-Use the flow "debugproxy" to be able to set breakpoints in PhpStorm in the original
-files, while the real process uses the flow generated "proxy classes".
+Use the [flow-debugproxy](https://github.com/dfeyer/flow-debugproxy) to be able to set breakpoints
+in PhpStorm in the original files, while the real process inside the container uses the flow generated
+"proxy classes".
 
 Add this to your projects `docker-compose.yml`:
 
