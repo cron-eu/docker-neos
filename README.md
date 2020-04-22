@@ -277,6 +277,41 @@ Another alternative is to use a Docker mount or volume. Mount the source dir to
 `/src` and make sure not to set the `REPOSITORY_URL`. Then the init logic will just
 `rsync -a` from /src to `/data/www-provisioned` instead.
 
+## Using Xdebug with Flow / Neos
+
+Use the flow "debugproxy" to be able to set breakpoints in PhpStorm in the original
+files, while the real process uses the flow generated "proxy classes".
+
+Add this to your projects `docker-compose.yml`:
+
+```
+services:
+
+  # this is your application container
+  web:
+    environment:
+      XDEBUG_CONFIG: "remote_host=debugproxy"
+    links:
+    - debugproxy
+
+  # this is the additional proxy where xdebug will connect to
+  debugproxy:
+    image: dfeyer/flow-debugproxy:latest
+    volumes:
+      # make sure the proxy has access to the same files as the web container:
+      - data:/data
+    environment:
+      # the IP of your local host (i.e. Mac) - see also https://github.com/devilbox/xdebug
+      #- "IDE_IP=172.18.0.1"
+      - "IDE_IP=10.254.254.254"
+
+      # This is the default value, need to match the xdebug.remote_port on your php.ini
+      - "XDEBUG_PORT=9010"
+
+      # Use this to enable verbose debugging on the proxy
+      #- "ADDITIONAL_ARGS=--vv --debug"
+```
+
 ## Docker Image Development
 
 ```
