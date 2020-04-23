@@ -255,7 +255,7 @@ This image supports following environment variable for automatically configuring
 |ADMIN_PASSWORD|If set, would create a Neos `admin` user with such password, optional|
 |AWS_BACKUP_ARN|Automatically import the database from `${AWS_RESOURCES_ARN}db.sql` on the first container launch. Requires `AWS_ACCESS_KEY`, `AWS_SECRET_ACCESS_KEY` and `AWS_ENDPOINT` (optional, for S3-compatible storage) to be set in order to work.|
 |COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-source`|
-|XDEBUG_CONFIG|Pass xdebug config string, e.g. `idekey=PHPSTORM remote_enable=1`. If no config provided the Xdebug extension will be disabled (safe for production), off by default|
+|XDEBUG_CONFIG|Pass xdebug config string, e.g. `idekey=PHPSTORM;remote_enable=1`. If no config provided the Xdebug extension will be disabled (safe for production), off by default|
 |IMPORT_GITHUB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Github account(s).|
 |IMPORT_GITLAB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Gitlab account(s). Note: please also setup the GITLAB_URL ENV var, else this will throw an error.|
 |GITLAB_URL| Your HTTPS Gitlab Server URL, e.g. https://gitlab.my-company.com (without the trailing /)|
@@ -276,6 +276,42 @@ If so, the initialization logic will perform a `git clone`.
 Another alternative is to use a Docker mount or volume. Mount the source dir to
 `/src` and make sure not to set the `REPOSITORY_URL`. Then the init logic will just
 `rsync -a` from /src to `/data/www-provisioned` instead.
+
+## Using Xdebug with Flow / Neos
+
+Use the [flow-debugproxy](https://github.com/dfeyer/flow-debugproxy) to be able to set breakpoints
+in PhpStorm in the original files, while the real process inside the container uses the flow generated
+"proxy classes".
+
+Add this to your projects `docker-compose.yml`:
+
+```
+services:
+
+  # this is your application container
+  web:
+    environment:
+      XDEBUG_CONFIG: "remote_host=debugproxy"
+    links:
+    - debugproxy
+
+  # this is the additional proxy where xdebug will connect to
+  debugproxy:
+    image: dfeyer/flow-debugproxy:latest
+    volumes:
+      # make sure the proxy has access to the same files as the web container:
+      - data:/data
+    environment:
+      # the IP of your local host (i.e. Mac) - see also https://github.com/devilbox/xdebug
+      #- "IDE_IP=172.18.0.1"
+      - "IDE_IP=10.254.254.254"
+
+      # This is the default value, need to match the xdebug.remote_port on your php.ini
+      - "XDEBUG_PORT=9010"
+
+      # Use this to enable verbose debugging on the proxy
+      #- "ADDITIONAL_ARGS=--vv --debug"
+```
 
 ## Docker Image Development
 
