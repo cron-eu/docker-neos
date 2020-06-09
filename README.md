@@ -334,8 +334,6 @@ Use the `push-*` targets in the Makefile to push the images to Docker Hub.
 
 ```
 docker login
-
-```
 make push-7.3
 ```
 
