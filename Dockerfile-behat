@@ -1,4 +1,6 @@
-FROM croneu/neos:latest
+ARG IMAGE_VERSION="latest"
+
+FROM croneu/neos:${IMAGE_VERSION}
 MAINTAINER Remus Lazar <rl@cron.eu>
 
 # install jre, selenium, firefox and xvfb
