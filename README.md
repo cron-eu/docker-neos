@@ -321,6 +321,24 @@ make build
 
 This will create both images from scratch
 
+### Create a build for a specific PHP Version
+
+Use the available targets in the `Makefile`, e.g.
+
+```
+make build-7.3
+```
+
+Important note: There is no automation on Docker Hub to build Docker Images other than `latest`.
+Use the `push-*` targets in the Makefile to push the images to Docker Hub.
+
+```
+docker login
+
+```
+make push-7.3
+```
+
 ## MIT Licence
 
 See the [LICENSE](LICENSE) file.
