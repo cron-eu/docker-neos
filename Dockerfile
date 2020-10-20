@@ -52,7 +52,7 @@ RUN set -x \
 		exif \
 		json \
 		tokenizer \
-    zip \
+		zip \
 	&& pecl install redis-${PHP_REDIS_VERSION} yaml-${PHP_YAML_VERSION} xdebug-${PHP_XDEBUG_VERSION} \
 	&& docker-php-ext-enable xdebug \
 	&& docker-php-ext-enable redis \
