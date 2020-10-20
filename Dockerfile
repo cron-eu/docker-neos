@@ -52,10 +52,12 @@ RUN set -x \
 		exif \
 		json \
 		tokenizer \
+    zip \
 	&& pecl install redis-${PHP_REDIS_VERSION} yaml-${PHP_YAML_VERSION} xdebug-${PHP_XDEBUG_VERSION} \
 	&& docker-php-ext-enable xdebug \
 	&& docker-php-ext-enable redis \
 	&& docker-php-ext-enable yaml \
+	&& docker-php-ext-enable zip \
 	&& apk del .phpize-deps \
 	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
