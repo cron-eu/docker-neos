@@ -32,7 +32,7 @@ commands:
         type: string
         default: '7.2-base'
     steps:
-      - run: docker build --build-arg PHP_VERSION="<< parameters.php_version >>" --target << parameters.target >> -t << parameters.image_name >> .
+      - run: docker build --build-arg COMPOSER_MAJOR_VERSION=1 --build-arg PHP_VERSION="<< parameters.php_version >>" --target << parameters.target >> -t << parameters.image_name >> .
       - run: docker save << parameters.image_name >> > /tmp/<< parameters.image_name >>.tar
       - persist_to_workspace:
           root: /tmp
@@ -106,9 +106,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      # we load the default image because our image uses it for building
-      - load_docker_image:
-          image_name: '7.2-base'
       - build_docker_image:
           php_version: '7.2'
           target: 'behat'
