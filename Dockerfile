@@ -39,9 +39,9 @@ LABEL org.label-schema.docker.dockerfile="/Dockerfile" \
 
 RUN set -x \
 	&& apk update \
-	&& apk add tar rsync curl sed bash yaml python py-pip py-setuptools groff less mysql-client git nginx optipng freetype libjpeg-turbo-utils icu-dev openssh pwgen sudo s6 \
+	&& apk add tar rsync curl sed bash yaml py3-pip py-setuptools groff less mysql-client git nginx optipng freetype libjpeg-turbo-utils icu-dev openssh pwgen sudo s6 \
 	&& pip install awscli \
-	&& apk del py-pip py-setuptools \
+	&& apk del py3-pip py-setuptools \
 	&& apk add --virtual .phpize-deps $PHPIZE_DEPS libtool freetype-dev libpng-dev libjpeg-turbo-dev yaml-dev \
 	&& docker-php-ext-configure gd \
 		--with-gd \
