@@ -6,10 +6,12 @@ ARG PHP_REDIS_VERSION="3.1.6"
 ARG PHP_YAML_VERSION="2.0.2"
 ARG PHP_XDEBUG_VERSION="2.9.4"
 ARG S6_VERSION="1.21.2.2"
+# allowed values: 1,2
+ARG COMPOSER_MAJOR_VERSION="2"
 
 ENV \
-   COMPOSER_VERSION=1.6.2 \
 	 COMPOSER_HOME=/composer \
+   COMPOSER_MAJOR_VERSION=${COMPOSER_MAJOR_VERSION} \
 	 PATH=/composer/vendor/bin:$PATH \
 	 COMPOSER_ALLOW_SUPERUSER=1 \
 	 COMPOSER_INSTALL_PARAMS=--prefer-source
@@ -60,7 +62,7 @@ RUN set -x \
 	&& docker-php-ext-enable zip \
 	&& apk del .phpize-deps \
 	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --version=${COMPOSER_VERSION} && rm -rf /tmp/composer-setup.php \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR_VERSION} && rm -rf /tmp/composer-setup.php \
 	&& curl -s http://beard.famelo.com/ > /usr/local/bin/beard \
 	&& chmod +x /usr/local/bin/beard \
 	&& git config --global user.email "server@server.com" \
