@@ -4,12 +4,6 @@
 [![](https://images.microbadger.com/badges/version/croneu/neos.svg)](https://microbadger.com/images/croneu/neos "Neos Dev Docker Image")
 [![](https://circleci.com/gh/cron-eu/docker-neos.svg?style=shield)](https://circleci.com/gh/cron-eu/docker-neos/)
 
-# [croneu/neos-behat](https://hub.docker.com/r/croneu/neos-behat)
-
-[![](https://images.microbadger.com/badges/image/croneu/neos-behat.svg)](https://microbadger.com/images/croneu/neos-behat "croneu/neos-behat")
-[![](https://images.microbadger.com/badges/version/croneu/neos-behat.svg)](https://microbadger.com/images/croneu/neos-behat "Neos Dev Docker Image")
-[![](https://circleci.com/gh/cron-eu/docker-neos.svg?style=shield)](https://circleci.com/gh/cron-eu/docker-neos/)
-
 ## Abstract
 
 Opinionated Docker Images for [Neos](https://www.neos.io) Development.
@@ -17,16 +11,18 @@ Opinionated Docker Images for [Neos](https://www.neos.io) Development.
 ## Compatibility
 
 _Currently_ the included images do support only newer Neos Versions, basically all
-versions which run with `PHP 7.2`.
+versions which run with `PHP 7.2` or `PHP 7.3`.
 
 ## Docker Images included
 
 This repository builds two distinct Docker Images:
 
-| Docker Image Name | Description |
+| Tag | Description |
 | ----------------- | ----------- |
-| [croneu/neos](https://hub.docker.com/r/croneu/neos) | Base docker image, useful to run a Neos project in docker for development purposes.|
-| [croneu/neos-behat](https://hub.docker.com/r/croneu/neos-behat) | Base image with some Add-Ons for Behat Tests (supports also unattended use for e.g. circleCI/Travis) |
+| 7.2 | PHP 7.2 based docker image, useful to run a Neos project in docker for development purposes.|
+| 7.2-behat | PHP 7.2 based image with some add-ons for behat tests (supports also unattended use for e.g. circleCI/Travis) |
+| 7.3 | PHP 7.3 based docker image, useful to run a Neos project in docker for development purposes.|
+| 7.3-behat | PHP 7.3 based image with some add-ons for behat tests (supports also unattended use for e.g. circleCI/Travis) |
 
 ## Usage in a nutshell
 
@@ -37,11 +33,11 @@ using the `IMPORT_GITHUB_PUB_KEYS` env var in your `docker-compose.yml` file.
 
 ```yaml
 ---
-version: '3.1'
+version: '3.7'
 
 services:
   web:
-    image: croneu/neos:latest
+    image: croneu/neos:7.3
     ports:
       - '8080:8080'
       - '1122:22'
@@ -154,7 +150,7 @@ version: '3.1'
 services:
   web:
     # use the neos-alpine behat image instead of the default one
-    image: croneu/neos-behat:latest
+    image: croneu/neos:7.3-behat
     hostname: behat-runner
     ports:
       - '5900:5900'
