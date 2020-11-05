@@ -37,8 +37,7 @@ LABEL org.label-schema.docker.dockerfile="/Dockerfile" \
 # Install awscli
 RUN set -x \
 	&& apk add --no-cache python3 py3-pip \
-	&& pip3 install awscli \
-	&& apk del py3-pip
+	&& python3 -m pip install awscli
 
 # Install needed tools
 RUN set -x \
