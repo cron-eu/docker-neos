@@ -4,12 +4,11 @@ FROM croneu/neos:${IMAGE_VERSION}
 MAINTAINER Remus Lazar <rl@cron.eu>
 
 # install jre, selenium, firefox and xvfb
-RUN apk --update add openjdk8 xorg-server xvfb firefox-esr curl libvncserver openssl dbus \
-  && curl -sSL -o /usr/bin/selenium-server-standalone.jar http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar \
-  && rm -rf /var/cache/apk/*
+RUN apk add --no-cache openjdk8 xorg-server xvfb firefox-esr curl libvncserver openssl dbus \
+  && curl -sSL -o /usr/bin/selenium-server-standalone.jar http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
 
 # we do compile x11vnc from sources (unfortunately there is no binary package available..)
-RUN apk --update add --virtual=.x11vncdeps gcc g++ automake autoconf make openssl-dev libx11-dev libvncserver-dev \
+RUN apk add --no-cache --virtual=.x11vncdeps gcc g++ automake autoconf make openssl-dev libx11-dev libvncserver-dev \
   && mkdir -p /src && cd /src \
   && git clone https://github.com/LibVNC/x11vnc \
   && cd x11vnc \
@@ -17,8 +16,7 @@ RUN apk --update add --virtual=.x11vncdeps gcc g++ automake autoconf make openss
   && make \
   && make install \
   && apk del .x11vncdeps \
-  && cd / && rm -rf /src \
-  && rm -rf /var/cache/apk/*
+  && cd / && rm -rf /src
 
 # required for the xvfb notifyoncheck script
 RUN apk add --no-cache xdpyinfo

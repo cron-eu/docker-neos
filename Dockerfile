@@ -6,9 +6,6 @@ FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION}
 
 MAINTAINER Remus Lazar <rl@cron.eu>
 
-ARG PHP_REDIS_VERSION="3.1.6"
-ARG PHP_YAML_VERSION="2.0.2"
-ARG PHP_XDEBUG_VERSION="2.9.4"
 ARG S6_VERSION="1.21.2.2"
 # allowed values: 1,2
 ARG COMPOSER_MAJOR_VERSION="2"
@@ -37,47 +34,45 @@ LABEL org.label-schema.docker.dockerfile="/Dockerfile" \
 	org.label-schema.vcs-url="https://github.com/cron-eu/neos" \
 	org.label-schema.vcs-type="Git"
 
+# Install awscli
 RUN set -x \
-	&& apk update \
-	&& apk add tar rsync curl sed bash yaml py3-pip py-setuptools groff less mysql-client git nginx optipng freetype libjpeg-turbo-utils icu-dev openssh pwgen sudo s6 \
-	&& pip install awscli \
-	&& apk del py3-pip py-setuptools \
-	&& apk add --virtual .phpize-deps $PHPIZE_DEPS libtool freetype-dev libpng-dev libjpeg-turbo-dev yaml-dev \
-	&& docker-php-ext-configure gd \
-		--with-gd \
-		--with-freetype-dir=/usr/include/ \
-		--with-png-dir=/usr/include/ \
-		--with-jpeg-dir=/usr/include/ \
-	&& docker-php-ext-install \
-		gd \
-		pdo \
-		pdo_mysql \
-		mbstring \
-		opcache \
-		intl \
-		exif \
-		json \
-		tokenizer \
-		zip \
-	&& pecl install redis-${PHP_REDIS_VERSION} yaml-${PHP_YAML_VERSION} xdebug-${PHP_XDEBUG_VERSION} \
-	&& docker-php-ext-enable xdebug \
-	&& docker-php-ext-enable redis \
-	&& docker-php-ext-enable yaml \
-	&& docker-php-ext-enable zip \
-	&& apk del .phpize-deps \
-	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR_VERSION} && rm -rf /tmp/composer-setup.php \
-	&& curl -s http://beard.famelo.com/ > /usr/local/bin/beard \
-	&& chmod +x /usr/local/bin/beard \
+	&& apk add --no-cache python3 py3-pip \
+	&& pip3 install awscli \
+	&& apk del py3-pip
+
+# Install needed tools
+RUN set -x \
+	&& apk add --no-cache make tar rsync curl jq sed bash yaml less mysql-client git nginx openssh pwgen sudo s6
+
+# Install required PHP extensions
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+RUN install-php-extensions \
+	gd \
+	pdo \
+	pdo_mysql \
+	mbstring \
+	opcache \
+	intl \
+	imagick \
+	exif \
+	json \
+	tokenizer \
+	zip \
+	redis \
+	yaml \
+	xdebug
+
+# Install composer
+RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR_VERSION} \
+	&& rm -rf /tmp/composer-setup.php \
 	&& git config --global user.email "server@server.com" \
-	&& git config --global user.name "Server" \
-	&& rm -rf /var/cache/apk/*
+	&& git config --global user.name "Server"
 
-# Download s6
-ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-amd64.tar.gz /tmp/
+# Install s6
+RUN curl -L https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-amd64.tar.gz | tar xzf - -C /
 
-RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C / && rm /tmp/s6-overlay-amd64.tar.gz \
-	&& echo "xdebug.remote_enable=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
+RUN echo "xdebug.remote_enable=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_connect_back=0" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.max_nesting_level=512" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.idekey=\"PHPSTORM\"" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
@@ -88,16 +83,6 @@ RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C / && rm /tmp/s6-overlay-amd64.tar.gz
 	&& sed -i -r 's/.?ChallengeResponseAuthentication.+/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?PermitRootLogin.+/PermitRootLogin no/' /etc/ssh/sshd_config \
 	&& sed -i '/secure_path/d' /etc/sudoers
-
-# Imagick support
-# needed if Neos.Imagine.driver: Imagick
-RUN apk --no-cache add php7-imagick imagemagick autoconf gcc g++ imagemagick-dev libtool make \
-	&& echo '' | pecl install imagick \
-	&& docker-php-ext-enable imagick \
-	&& apk del autoconf gcc g++ imagemagick-dev libtool
-
-# Install jq utility (used to parse JSON in e.g. Makefiles)
-RUN apk --no-cache add jq
 
 # Copy container-files
 COPY container-files /
