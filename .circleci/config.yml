@@ -22,14 +22,17 @@ commands:
   build_docker_image:
     description: "Build a Docker Image and save it in the workspace"
     parameters:
+      php_version:
+        type: string
+        default: '7.2'
+      target:
+        type: string
+        default: 'base'
       image_name:
         type: string
-        default: 'docker-image'
-      file:
-        type: string
-        default: Dockerfile
+        default: '7.2-base'
     steps:
-      - run: docker build --tag=<< parameters.image_name >> -f << parameters.file >> .
+      - run: docker build --build-arg PHP_VERSION="<< parameters.php_version >>" --target << parameters.target >> -t << parameters.image_name >> .
       - run: docker save << parameters.image_name >> > /tmp/<< parameters.image_name >>.tar
       - persist_to_workspace:
           root: /tmp
@@ -41,7 +44,7 @@ commands:
     parameters:
       image_name:
         type: string
-        default: 'docker-image'
+        default: '7.2-base'
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -54,7 +57,7 @@ commands:
     parameters:
       image_name:
         type: string
-        default: 'docker-image'
+        default: '7.2-base'
     steps:
       - run:
           name: Run the docker web container
@@ -105,10 +108,11 @@ jobs:
       - setup_remote_docker
       # we load the default image because our image uses it for building
       - load_docker_image:
-          image_name: docker-image
+          image_name: '7.2-base'
       - build_docker_image:
-          image_name: docker-image-behat
-          file: Dockerfile-behat
+          php_version: '7.2'
+          target: 'behat'
+          image_name: '7.2-behat'
 
   test-behat:
     docker:
@@ -116,7 +120,7 @@ jobs:
     steps:
       - setup_remote_docker
       - load_docker_image:
-          image_name: docker-image-behat
+          image_name: '7.2-behat'
       - run_database:
           DB_NAME: db_behat
       - run:
@@ -126,7 +130,7 @@ jobs:
               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
               --env="VERSION=3.3" \
               --env="SITE_PACKAGE=Neos.Demo" \
-             docker-image-behat \
+             7.2-behat \
              sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
 
 workflows:
