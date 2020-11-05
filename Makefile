@@ -1,25 +1,20 @@
 all: build
 
-build: build-neos build-neos-behat
-build-7.3: build-neos-7.3 build-neos-behat-7.3
+build: build-7.2 build-7.3
+push: push-7.2 push-7.3
 
-build-neos:
-	docker build -t croneu/neos:latest .
+build-7.2:
+	docker build --build-arg PHP_VERSION="7.2" --target base -t croneu/neos:7.2 .
+	docker build --build-arg PHP_VERSION="7.2" --target behat -t croneu/neos:7.2-behat .
 
-build-neos-behat:
-	docker build -t croneu/neos-behat:latest -f Dockerfile-behat .
+build-7.3:
+	docker build --build-arg PHP_VERSION="7.3" --target base -t croneu/neos:7.3 .
+	docker build --build-arg PHP_VERSION="7.3" --target behat -t croneu/neos:7.3-behat .
 
-build-neos-7.3:
-	# use the latest available (compatible) alpine version
-	docker build \
-	 --build-arg PHP_VERSION="7.3" \
-	 -t croneu/neos:7.3 .
-
-build-neos-behat-7.3:
-	docker build \
-	 --build-arg IMAGE_VERSION="7.3" \
-	 -t croneu/neos-behat:7.3 -f Dockerfile-behat .
+push-7.2:
+	docker push croneu/neos:7.2
+	docker push croneu/neos:7.2-behat
 
 push-7.3:
 	docker push croneu/neos:7.3
-	docker push croneu/neos-behat:7.3
+	docker push croneu/neos:7.3-behat
