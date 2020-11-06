@@ -92,9 +92,9 @@ jobs:
                --env="SITE_PACKAGE=Neos.Demo" \
                croneu/neos:${{ matrix.php-version }} &
       -
-        name: Test Neos Provisioning (max. 180 seconds)
+        name: Test Neos Provisioning (max. 240 seconds)
         run: |
-          i=0; while [ "$i" -le 18 ]; do
+          i=0; while [ "$i" -le 24 ]; do
             if docker logs web 2>&1 | grep "ready to handle connections"
             then
               break
