@@ -107,8 +107,18 @@ jobs:
               sleep 10
             fi
           done
-
-      - name: Upload Docker Output as an Artifact
+      -
+        name: "Test if the Neos DemoSite renders OK"
+        run: |
+          docker run --rm --volumes-from=web --link=web alpine /bin/sh -c 'apk add curl -q \
+              && curl -s -L --head http://web | grep "HTTP/1.1 200 OK" \
+              && curl -s -L --head http://web | grep "X-Flow-Powered" \
+              && curl -s -L http://web | grep "This website is powered by Neos"'
+      -
+        name: Cleanups: Stop running docker containers
+        run: docker stop web db
+      -
+        name: Upload Docker Output as an Artifact
         uses: actions/upload-artifact@v2
         with:
           name: docker-run.out.txt
