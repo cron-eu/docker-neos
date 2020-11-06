@@ -55,9 +55,12 @@ jobs:
     strategy:
       matrix:
         php-version: [7.2, 7.3]
-        neos-version: [3.3, 4.3]
-    # compatibility checks
-    if: "matrix.php-version == '7.2' && matrix.neos-version == '3.3' || matrix.php-version == '7.3' && matrix.neos-version == '4.3'"
+        # php version <> neos version compatibility
+        include:
+          - php-version: 7.2
+            neos-version: 3.3
+          - php-version: 7.3
+            neos-version: 4.3
     steps:
       -
         name: Download Artifacts
