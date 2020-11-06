@@ -52,17 +52,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    # services:
-    #   db:
-    #     image: mariadb:10.3
-    #     env:
-    #       MYSQL_DATABASE: db
-    #       MYSQL_USER: admin
-    #       MYSQL_PASSWORD: pass
-    #       MYSQL_RANDOM_ROOT_PASSWORD: yes
-    #       MYSQL_ROOT_PASSWORD: password
-    #     ports:
-    #       - 3306:3306
     strategy:
       matrix:
         php-version: [7.2]
