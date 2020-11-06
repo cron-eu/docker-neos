@@ -93,7 +93,7 @@ jobs:
       -
         name: Test Neos Provisioning (max. 180 seconds)
         run: |
-          while [ $i -le 18 ]; do
+          while [ "$i" -le 18 ]; do
             if docker logs web 2>&1 | grep "ready to handle connections"
             then
               break
