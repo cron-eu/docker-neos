@@ -1,0 +1,173 @@
+name: Docker Build
+
+on: [ push ]
+
+jobs:
+  # Build a docker image for a specific version and using a given target
+  build_docker_image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [ base, behat ]
+        php-version: [7.2, 7.3]
+    steps:
+      -
+        name: Checkout Sourcecode
+        uses: actions/checkout@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      -
+        name: Build Image for php ${{ matrix.php-version }}
+        uses: docker/build-push-action@v2
+        with:
+          build-args: COMPOSER_MAJOR_VERSION=1
+          load: true
+          tags: croneu/neos:${{ matrix.php-version }}
+          target: ${{ matrix.target }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+      -
+        name: Save Docker Image
+        run: docker save croneu/neos:${{ matrix.php-version }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
+
+      - name: Upload Docker Image as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-neos-${{ matrix.target }}-${{ matrix.php-version }}.tar.gz
+          path: docker-neos-${{ matrix.target }}.tar.gz
+
+  test_docker_image:
+    needs: build_docker_image
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        php-version: [7.2, 7.3]
+        # php version <> neos version compatibility
+        include:
+          - php-version: 7.2
+            neos-version: 3.3
+          - php-version: 7.3
+            neos-version: 4.3
+    steps:
+      -
+        name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-neos-base-${{ matrix.php-version }}.tar.gz
+      -
+        name: Load Docker Image
+        run: docker load -i docker-neos-base.tar.gz
+      -
+        name: Run the docker DB container (mariadb:10.3)
+        # use the official mariadb image using default values (user/pass etc.)
+        run: |
+         docker run -d --name=db \
+           --env="MYSQL_DATABASE=db" \
+           --env="MYSQL_USER=admin" \
+           --env="MYSQL_PASSWORD=pass" \
+           --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
+           --env="MYSQL_ROOT_PASSWORD=password" \
+           mariadb:10.3
+      -
+        name: Run Docker Image (background)
+        # note: this requires a bash shell
+        run: |
+          docker run --name=web --link=db:db \
+               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+               --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
+               --env="VERSION=${{ matrix.neos-version }}" \
+               --env="SITE_PACKAGE=Neos.Demo" \
+               croneu/neos:${{ matrix.php-version }} &
+      -
+        name: Test Neos Provisioning (max. 240 seconds)
+        run: |
+          i=0; while [ "$i" -le 24 ]; do
+            if docker logs web 2>&1 | grep "ready to handle connections"
+            then
+              break
+            else
+              echo "Waiting for web container to finish provisioning .." $(( i++ ))
+              sleep 10
+            fi
+          done
+      -
+        name: "Test if the Neos DemoSite renders OK"
+        run: |
+          docker run --rm --volumes-from=web --link=web alpine /bin/sh -c 'apk add curl -q \
+              && curl -s -L --head http://web | grep "HTTP/1.1 200 OK" \
+              && curl -s -L --head http://web | grep "X-Flow-Powered" \
+              && curl -s -L http://web | grep "This website is powered by Neos"'
+      -
+        name: "Gather Docker Output"
+        run: docker logs web &> docker-run.out.txt
+      -
+        name: Upload Docker Output as an Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-run.out.txt
+          path: docker-run.out.txt
+      -
+        name: "Cleanup: Stop running docker containers"
+        run: docker stop web db
+
+  test_docker_behat_image:
+    needs: build_docker_image
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      matrix:
+        php-version: [7.2, 7.3]
+        # php version <> neos version compatibility
+        include:
+          - php-version: 7.2
+            neos-version: 3.3
+          - php-version: 7.3
+            neos-version: 4.3
+    steps:
+      -
+        name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-neos-behat-${{ matrix.php-version }}.tar.gz
+      -
+        name: Load Docker Image
+        run: docker load -i docker-neos-behat.tar.gz
+      -
+        name: Run the docker DB container (mariadb:10.3)
+        # use the official mariadb image using default values (user/pass etc.)
+        run: |
+         docker run -d --name=db \
+           --env="MYSQL_DATABASE=db_behat" \
+           --env="MYSQL_USER=admin" \
+           --env="MYSQL_PASSWORD=pass" \
+           --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
+           --env="MYSQL_ROOT_PASSWORD=password" \
+           mariadb:10.3
+      -
+        name: "Run a single Behat Test from the Neos.Neos Package"
+        run: |
+          docker run --rm --link=db:db \
+           --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+           --env="VERSION=${{ matrix.neos-version }}" \
+           --env="COMPOSER_INSTALL_PARAMS=--dev" \
+           --env="SITE_PACKAGE=Neos.Demo" \
+          croneu/neos:${{ matrix.php-version }} sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
+      -
+        name: "Cleanup: Stop running docker containers"
+        run: docker stop db
