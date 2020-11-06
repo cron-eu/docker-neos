@@ -87,6 +87,7 @@ jobs:
         run: |
           docker run --name=web --link=db:db \
                --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+               --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
                --env="VERSION=3.3" \
                --env="SITE_PACKAGE=Neos.Demo" \
                croneu/neos:${{ matrix.php-version }} | tee docker-run.out.txt &
