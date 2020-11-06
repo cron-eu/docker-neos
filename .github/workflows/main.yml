@@ -94,7 +94,7 @@ jobs:
                --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
                --env="VERSION=3.3" \
                --env="SITE_PACKAGE=Neos.Demo" \
-               croneu/neos:${{ matrix.php-version }} | tee docker-run.out.txt &
+               croneu/neos:${{ matrix.php-version }} &
       -
         name: Test Neos Provisioning (max. 180 seconds)
         run: |
@@ -115,11 +115,14 @@ jobs:
               && curl -s -L --head http://web | grep "X-Flow-Powered" \
               && curl -s -L http://web | grep "This website is powered by Neos"'
       -
-        name: "Cleanup: Stop running docker containers"
-        run: docker stop web db
+        name: "Gather Docker Output"
+        run: docker logs web > docker-run.out.txt
       -
         name: Upload Docker Output as an Artifact
         uses: actions/upload-artifact@v2
         with:
           name: docker-run.out.txt
           path: docker-run.out.txt
+      -
+        name: "Cleanup: Stop running docker containers"
+        run: docker stop web db
