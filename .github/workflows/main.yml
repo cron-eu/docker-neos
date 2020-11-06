@@ -37,7 +37,7 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
         name: Save Docker Image
-        run: docker save croneu/neos:${{ matrix.php-version }} | gzip > docker-neos-base.tar.gz
+        run: docker save croneu/neos:${{ matrix.php-version }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
 
       - name: Upload Docker Image as Artifact
         uses: actions/upload-artifact@v2
