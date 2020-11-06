@@ -1,0 +1,7 @@
+#!/bin/bash
+
+docker push croneu/neos:7.2
+docker push croneu/neos:7.2-behat
+
+docker push croneu/neos:7.3
+docker push croneu/neos:7.3-behat
