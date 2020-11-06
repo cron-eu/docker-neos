@@ -54,7 +54,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        php-version: [7.2]
+        php-version: [7.2, 7.3]
     steps:
       -
         name: Download Artifacts
@@ -76,13 +76,24 @@ jobs:
            --env="MYSQL_ROOT_PASSWORD=password" \
            mariadb:10.3
       -
-        name: Run Docker Image (background)
+        name: Run Docker Image (Neos 3.3) (background)
         # note: this requires a bash shell
+        if: ${{ matrix.php-version == '7.2' }}
         run: |
           docker run --name=web --link=db:db \
                --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
                --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
                --env="VERSION=3.3" \
+               --env="SITE_PACKAGE=Neos.Demo" \
+               croneu/neos:${{ matrix.php-version }} &
+      -
+        name: Run Docker Image (Neos 4.3) (background)
+        if: ${{ matrix.php-version == '7.3' }}
+        run: |
+          docker run --name=web --link=db:db \
+               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+               --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
+               --env="VERSION=4.3" \
                --env="SITE_PACKAGE=Neos.Demo" \
                croneu/neos:${{ matrix.php-version }} &
       -
