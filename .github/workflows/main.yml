@@ -115,7 +115,7 @@ jobs:
               && curl -s -L --head http://web | grep "X-Flow-Powered" \
               && curl -s -L http://web | grep "This website is powered by Neos"'
       -
-        name: Cleanups: Stop running docker containers
+        name: "Cleanup: Stop running docker containers"
         run: docker stop web db
       -
         name: Upload Docker Output as an Artifact
