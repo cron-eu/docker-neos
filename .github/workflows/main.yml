@@ -106,7 +106,7 @@ jobs:
               && curl -s -L http://web | grep "This website is powered by Neos"'
       -
         name: "Gather Docker Output"
-        run: docker logs web > docker-run.out.txt
+        run: docker logs web &> docker-run.out.txt
       -
         name: Upload Docker Output as an Artifact
         uses: actions/upload-artifact@v2
