@@ -28,8 +28,47 @@ jobs:
         name: Build Image for php ${{ matrix.php-version }}
         uses: docker/build-push-action@v2
         with:
-          push: false
+          load: true
           tags: croneu/neos:${{ matrix.php-version }}
           target: base
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+      -
+        name: Save Docker Image
+        run: docker save croneu/neos:${{ matrix.php-version }} > docker-neos-base.tar
+
+      - name: Upload Docker Image as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-neos-base-${{ matrix.php-version }}
+          path: docker-neos-base.tar
+
+  test_docker_image:
+    needs: build_docker_image
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb:10.3
+        env:
+          MYSQL_DATABASE: db
+          MYSQL_USER: admin
+          MYSQL_PASSWORD: pass
+          MYSQL_RANDOM_ROOT_PASSWORD: yes
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+    strategy:
+      matrix:
+        php-version: [7.2]
+    steps:
+      -
+        name: Download Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-neos-base-${{ matrix.php-version }}
+      -
+        name: Load Docker Image
+        run: docker load -i docker-neos-base.tar
+      -
+        name: Show Docker Images for Testing
+        run: docker images
