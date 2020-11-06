@@ -28,6 +28,8 @@ jobs:
         name: Build Image for php ${{ matrix.php-version }}
         uses: docker/build-push-action@v2
         with:
+          build-args:
+            COMPOSER_MAJOR_VERSION: 1
           load: true
           tags: croneu/neos:${{ matrix.php-version }}
           target: base
@@ -47,7 +49,7 @@ jobs:
     needs: build_docker_image
     runs-on: ubuntu-latest
     services:
-      mysql:
+      db:
         image: mariadb:10.3
         env:
           MYSQL_DATABASE: db
@@ -70,5 +72,13 @@ jobs:
         name: Load Docker Image
         run: docker load -i docker-neos-base.tar
       -
-        name: Show Docker Images for Testing
-        run: docker images
+        name: Run Docker Image
+        run: |
+          docker run --name=web --link=db:db \
+               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+               --env="VERSION=3.3" \
+               --env="SITE_PACKAGE=Neos.Demo" \
+               croneu/neos:${{ matrix.php-version }}
+      # -
+      #   name: Test Neos Provisioning
+      #   run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
