@@ -98,7 +98,7 @@ jobs:
             then
               break
             else
-              echo "Waiting for web container to finish provisioning... " $(( i++ ))
+              echo "Waiting for web container to finish provisioning .." $(( i++ ))
               sleep 10
             fi
           done
