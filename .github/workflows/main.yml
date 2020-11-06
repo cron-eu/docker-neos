@@ -133,6 +133,12 @@ jobs:
     strategy:
       matrix:
         php-version: [7.2]
+        # php version <> neos version compatibility
+        include:
+          - php-version: 7.2
+            neos-version: 3.3
+          - php-version: 7.3
+            neos-version: 4.3
     steps:
       -
         name: Download Artifacts
@@ -158,7 +164,7 @@ jobs:
         run: |
           docker run --rm --link=db:db \
            --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
-           --env="VERSION=3.3" \
+           --env="VERSION=${{ matrix.neos-version }}" \
            --env="COMPOSER_INSTALL_PARAMS=--dev" \
            --env="SITE_PACKAGE=Neos.Demo" \
           croneu/neos:${{ matrix.php-version }} sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
