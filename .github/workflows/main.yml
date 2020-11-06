@@ -132,7 +132,7 @@ jobs:
         shell: bash
     strategy:
       matrix:
-        php-version: [7.2]
+        php-version: [7.2, 7.3]
         # php version <> neos version compatibility
         include:
           - php-version: 7.2
