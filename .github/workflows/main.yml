@@ -1,0 +1,35 @@
+name: Docker Build
+
+on: [ push ]
+
+jobs:
+  # Build a docker image for a specific version and using a given target
+  build_docker_image:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [7.2, 7.3]
+    steps:
+      -
+        name: Checkout Sourcecode
+        uses: actions/checkout@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      -
+        name: Build Image for php ${{ matrix.php-version }}
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          tags: croneu/neos:${{ matrix.php-version }}
+          target: base
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
