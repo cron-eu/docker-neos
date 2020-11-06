@@ -36,28 +36,28 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
         name: Save Docker Image
-        run: docker save croneu/neos:${{ matrix.php-version }} > docker-neos-base.tar
+        run: docker save croneu/neos:${{ matrix.php-version }} | gzip > docker-neos-base.tar.gz
 
       - name: Upload Docker Image as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: docker-neos-base-${{ matrix.php-version }}
-          path: docker-neos-base.tar
+          name: docker-neos-base-${{ matrix.php-version }}.tar.gz
+          path: docker-neos-base.tar.gz
 
   test_docker_image:
     needs: build_docker_image
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: mariadb:10.3
-        env:
-          MYSQL_DATABASE: db
-          MYSQL_USER: admin
-          MYSQL_PASSWORD: pass
-          MYSQL_RANDOM_ROOT_PASSWORD: yes
-          MYSQL_ROOT_PASSWORD: password
-        ports:
-          - 3306:3306
+    # services:
+    #   db:
+    #     image: mariadb:10.3
+    #     env:
+    #       MYSQL_DATABASE: db
+    #       MYSQL_USER: admin
+    #       MYSQL_PASSWORD: pass
+    #       MYSQL_RANDOM_ROOT_PASSWORD: yes
+    #       MYSQL_ROOT_PASSWORD: password
+    #     ports:
+    #       - 3306:3306
     strategy:
       matrix:
         php-version: [7.2]
@@ -66,10 +66,21 @@ jobs:
         name: Download Artifacts
         uses: actions/download-artifact@v2
         with:
-          name: docker-neos-base-${{ matrix.php-version }}
+          name: docker-neos-base-${{ matrix.php-version }}.tar.gz
       -
         name: Load Docker Image
-        run: docker load -i docker-neos-base.tar
+        run: docker load -i docker-neos-base.tar.gz
+      -
+        name: Run the docker DB container (mariadb:10.3)
+        # use the official mariadb image using default values (user/pass etc.)
+        run: |
+         docker run -d --name=db \
+           --env="MYSQL_DATABASE=db" \
+           --env="MYSQL_USER=admin" \
+           --env="MYSQL_PASSWORD=pass" \
+           --env="MYSQL_RANDOM_ROOT_PASSWORD=yes" \
+           --env="MYSQL_ROOT_PASSWORD=password" \
+           mariadb:10.3
       -
         name: Run Docker Image
         run: |
