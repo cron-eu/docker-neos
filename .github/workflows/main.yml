@@ -32,7 +32,7 @@ jobs:
           build-args: COMPOSER_MAJOR_VERSION=1
           load: true
           tags: croneu/neos:${{ matrix.php-version }}
-          target: base
+          target: ${{ matrix.target }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
