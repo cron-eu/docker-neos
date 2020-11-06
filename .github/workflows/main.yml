@@ -46,6 +46,7 @@ jobs:
 
   test_docker_image:
     needs: build_docker_image
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     # services:
     #   db:
@@ -82,13 +83,28 @@ jobs:
            --env="MYSQL_ROOT_PASSWORD=password" \
            mariadb:10.3
       -
-        name: Run Docker Image
+        name: Run Docker Image (background)
         run: |
           docker run --name=web --link=db:db \
                --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
                --env="VERSION=3.3" \
                --env="SITE_PACKAGE=Neos.Demo" \
-               croneu/neos:${{ matrix.php-version }}
-      # -
-      #   name: Test Neos Provisioning
-      #   run: while true; do if docker logs web 2>&1 | grep "ready to handle connections"; then break; else echo "Waiting for web container to finish provisioning..." && sleep 10; fi done
+               croneu/neos:${{ matrix.php-version }} | tee docker-run.out.txt &
+      -
+        name: Test Neos Provisioning (max. 180 seconds)
+        run: |
+          while [ $i -le 18 ]; do
+            if docker logs web 2>&1 | grep "ready to handle connections"
+            then
+              break
+            else
+              echo "Waiting for web container to finish provisioning... " $(( i++ ))
+              sleep 10
+            fi
+          done
+
+      - name: Upload Docker Output as an Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-run.out.txt
+          path: docker-run.out.txt
