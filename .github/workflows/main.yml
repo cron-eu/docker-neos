@@ -87,6 +87,7 @@ jobs:
            mariadb:10.3
       -
         name: Run Docker Image (background)
+        # note: this requires a bash shell
         run: |
           docker run --name=web --link=db:db \
                --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
@@ -97,7 +98,7 @@ jobs:
       -
         name: Test Neos Provisioning (max. 180 seconds)
         run: |
-          while [ "$i" -le 18 ]; do
+          i=0; while [ "$i" -le 18 ]; do
             if docker logs web 2>&1 | grep "ready to handle connections"
             then
               break
