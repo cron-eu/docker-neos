@@ -75,7 +75,6 @@ RUN curl -L https://github.com/just-containers/s6-overlay/releases/download/v${S
 RUN echo "xdebug.remote_enable=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_connect_back=0" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.max_nesting_level=512" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
-	&& echo "xdebug.idekey=\"PHPSTORM\"" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_host=debugproxy" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_port=9010" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& sed -i -r 's/.?UseDNS\syes/UseDNS no/' /etc/ssh/sshd_config \
