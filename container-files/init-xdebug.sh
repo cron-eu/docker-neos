@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 set -e
 
-# XDEBUG_CONFIG is either empty (disabled) or contains a list of xdebug settings, separated by spaces.
-# These are used directly by the xdebug module (see https://xdebug.org/docs/remote) and overrides
-# the defaults. I.e.:
-#   XDEBUG_CONFIG='idekey=PHPSTORM remote_enable=1'
+# Configure Xdebug based on environment variables
+#
+# XDEBUG_ENABLED set to "1" to enable the extension
+# XDEBUG_CONFIG is passed to Xdebug to configure stuff at runtime (see https://xdebug.org/docs/remote)
 
-if [ -z "${XDEBUG_CONFIG}" ] ||  [ "${XDEBUG_CONFIG}" = "0" ] || [ "${XDEBUG_CONFIG}" = "off" ]
+if [ "${XDEBUG_ENABLED}" = "0" ] || [ "${XDEBUG_ENABLED}" = "off" ] || ( [ -z "${XDEBUG_CONFIG}" ] && [ -z "${XDEBUG_ENABLED}" ] )
 then
     sed -i -r 's/^zend_extension/;zend_extension/' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+    echo "PHP Xdebug extension disabled."
+
+elif [ "${XDEBUG_CONFIG}" = "0" ] || [ "${XDEBUG_CONFIG}" = "off" ]
+then
+
+    # backwards compatibility
+    sed -i -r 's/^zend_extension/;zend_extension/' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+    echo "PHP Xdebug extension disabled. Please use XDEBUG_ENABLED=0 in future!"
+
 else
     sed -i -r 's/^;zend_extension/zend_extension/' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 
-    echo "Xdebug enabled with the following config:"
+    echo "PHP Xdebug extension enabled with the following config:"
     echo "-- 8< --------------------------------------------------"
     cat "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "-- 8< --------------------------------------------------"
