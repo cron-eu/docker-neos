@@ -251,7 +251,8 @@ This image supports following environment variable for automatically configuring
 |ADMIN_PASSWORD|If set, would create a Neos `admin` user with such password, optional|
 |AWS_BACKUP_ARN|Automatically import the database from `${AWS_RESOURCES_ARN}db.sql` on the first container launch. Requires `AWS_ACCESS_KEY`, `AWS_SECRET_ACCESS_KEY` and `AWS_ENDPOINT` (optional, for S3-compatible storage) to be set in order to work.|
 |COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-source`|
-|XDEBUG_CONFIG|Pass xdebug config string, e.g. `idekey=PHPSTORM;remote_enable=1`. If no config provided the Xdebug extension will be disabled (safe for production), off by default|
+|XDEBUG_ENABLED|`0` to disable the Xdebug extension (default, if XDEBUG_CONFIG is also not defined), `1` to enabled it|
+|XDEBUG_CONFIG|Pass Xdebug config string, e.g. `idekey=PHPSTORM remote_enable=1`|
 |IMPORT_GITHUB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Github account(s).|
 |IMPORT_GITLAB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Gitlab account(s). Note: please also setup the GITLAB_URL ENV var, else this will throw an error.|
 |GITLAB_URL| Your HTTPS Gitlab Server URL, e.g. https://gitlab.my-company.com (without the trailing /)|
@@ -287,9 +288,10 @@ services:
   # this is your application container
   web:
     environment:
+      XDEBUG_ENABLED: "1"
       XDEBUG_CONFIG: "remote_host=debugproxy"
     links:
-    - debugproxy
+      - debugproxy
 
   # this is the additional proxy where xdebug will connect to
   debugproxy:

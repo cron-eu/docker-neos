@@ -42,7 +42,7 @@ RUN set -x \
 
 # Install needed tools
 RUN set -x \
-	&& apk add --no-cache make tar rsync curl jq sed bash yaml less mysql-client git nginx openssh pwgen sudo s6
+	&& apk add --no-cache make tar rsync curl jq sed bash yaml less mysql-client git nginx openssh openssh-server-pam pwgen sudo s6
 
 # Install required PHP extensions
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
@@ -75,13 +75,14 @@ RUN curl -L https://github.com/just-containers/s6-overlay/releases/download/v${S
 RUN echo "xdebug.remote_enable=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_connect_back=0" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.max_nesting_level=512" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
-	&& echo "xdebug.idekey=\"PHPSTORM\"" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_host=debugproxy" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& echo "xdebug.remote_port=9010" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini \
 	&& sed -i -r 's/.?UseDNS\syes/UseDNS no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?PasswordAuthentication.+/PasswordAuthentication no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?ChallengeResponseAuthentication.+/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?PermitRootLogin.+/PermitRootLogin no/' /etc/ssh/sshd_config \
+	# we use PAM to make ssh daemon to load the /etc/environment (see "00-init-ssh") \
+	&& sed -i -r 's/.?UsePAM.+/UsePAM yes/' /etc/ssh/sshd_config \
 	&& sed -i '/secure_path/d' /etc/sudoers
 
 # Copy container-files

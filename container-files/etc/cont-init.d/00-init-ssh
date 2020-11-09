@@ -52,3 +52,6 @@ elif [ -n "${IMPORT_GITLAB_PUB_KEYS}" ]; then
 else
 	echo "WARNING: env variable \$IMPORT_GITHUB_PUB_KEYS or \$IMPORT_GITLAB_PUB_KEYS is not set. Please set it to have access to this container via SSH."
 fi
+
+# Pass custom environment to SSH users, skip standard shell related vars
+env | egrep -v '^(_|CWD|MAIL|CHARSET|LANG|SSH|TERM|PATH|HOME|PWD|USER|SHELL|HOSTNAME|LOGNAME)' >> /etc/environment
