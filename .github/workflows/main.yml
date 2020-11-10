@@ -117,7 +117,7 @@ jobs:
         name: Upload Docker Output as an Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: docker-run.out.txt
+          name: docker-run-${{ matrix.php-version }}.out.txt
           path: docker-run.out.txt
       -
         name: "Cleanup: Stop running docker containers"
