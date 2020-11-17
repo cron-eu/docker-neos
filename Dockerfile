@@ -35,6 +35,10 @@ ENV \
 	COMPOSER_ALLOW_SUPERUSER=1 \
 	COMPOSER_INSTALL_PARAMS=--prefer-source
 
+# User / Group for www-data user. Keep 1000:50 for being able to mount local volumes and having access to it
+ARG UID="1000"
+ARG GID="50"
+
 # Set default values for env vars used in init scripts, override them if needed
 ENV \
   WWW_PORT=80 \
@@ -107,8 +111,8 @@ COPY container-files /
 
 RUN deluser www-data \
 	&& delgroup cdrw \
-	&& addgroup -g 80 www-data \
-	&& adduser -u 80 -G www-data -s /bin/bash -D www-data -h /data -k /etc/skel_www \
+	&& addgroup -g ${GID} www-data \
+	&& adduser -u ${UID} -G www-data -s /bin/bash -D www-data -h /data -k /etc/skel_www \
 	&& echo 'www-data ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/www \
 	&& rm -Rf /home/www-data \
 	&& sed -i -e "s#listen = 9000#listen = /var/run/php-fpm.sock#" /usr/local/etc/php-fpm.d/zz-docker.conf \
@@ -117,7 +121,7 @@ RUN deluser www-data \
 	&& echo "listen.group = www-data" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "listen.mode = 0660" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
-	&& chown 80:80 -R /var/lib/nginx \
+	&& chown ${UID}:${GID} -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
 	&& chmod +x /gitlab-keys.sh \
 	&& /bin/bash -c "source /init-php-conf.sh"
