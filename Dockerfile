@@ -31,11 +31,9 @@ ARG S6_VERSION="1.21.2.2"
 ARG COMPOSER_MAJOR_VERSION="2"
 
 ENV \
-	 COMPOSER_HOME=/composer \
-   COMPOSER_MAJOR_VERSION=${COMPOSER_MAJOR_VERSION} \
-	 PATH=/composer/vendor/bin:$PATH \
-	 COMPOSER_ALLOW_SUPERUSER=1 \
-	 COMPOSER_INSTALL_PARAMS=--prefer-source
+	COMPOSER_MAJOR_VERSION=${COMPOSER_MAJOR_VERSION} \
+	COMPOSER_ALLOW_SUPERUSER=1 \
+	COMPOSER_INSTALL_PARAMS=--prefer-source
 
 # Set default values for env vars used in init scripts, override them if needed
 ENV \
