@@ -32,13 +32,13 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           load: true
-          tags: croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
+          tags: ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
           target: ${{ matrix.target }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
         name: "Save Docker Image"
-        run: docker save croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
+        run: docker save ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
 
       - name: "Upload Docker Image as Artifact"
         uses: actions/upload-artifact@v2
@@ -95,7 +95,7 @@ jobs:
                --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
                --env="VERSION=${{ matrix.neos-version }}" \
                --env="SITE_PACKAGE=Neos.Demo" \
-               croneu/neos:${{ matrix.php-version }} &
+               ci/croneu/neos:${{ matrix.php-version }}-base &
       -
         name: "Wait for Neos provisioning (max. 240 seconds)"
         run: |
@@ -177,7 +177,7 @@ jobs:
            --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-progress" \
            --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
            --env="SITE_PACKAGE=Neos.Demo" \
-          croneu/neos:${{ matrix.php-version }} sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
+          ci/croneu/neos:${{ matrix.php-version }}-behat sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
       -
         name: "Cleanup: Stop running docker containers"
         run: docker stop db
