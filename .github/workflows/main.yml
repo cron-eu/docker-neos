@@ -148,9 +148,14 @@ jobs:
         # php version <> neos version compatibility
         include:
           - php-version: 7.2
-            neos-version: 3.3
+            # patched with fluid fix (pin fluid to older version):
+            neos-version: 3.3-cron
+            base-distribution-url: "https://github.com/cron-eu/neos-development-distribution"
+            composer-version: 1
           - php-version: 7.3
             neos-version: 4.3
+            base-distribution-url: "https://github.com/neos/neos-development-distribution"
+            composer-version: 2
     steps:
       -
         name: "Download artifacts"
