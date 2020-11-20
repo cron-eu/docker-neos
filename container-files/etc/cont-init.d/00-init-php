@@ -4,7 +4,7 @@ set -e
 
 # Choose composer v1 or v2
 if [ ! -z "$COMPOSER_MAJOR_VERSION" ]; then
-  if [ ! -e "/usr/local/bin/composer${COMPOSER_MAJOR_VERSION}" ]; then
+  if [ ! -x "/usr/local/bin/composer${COMPOSER_MAJOR_VERSION}" ]; then
     echo "* ERROR: Desired composer v${COMPOSER_MAJOR_VERSION} does not exist!"
   else
     echo "* Choosing composer v${COMPOSER_MAJOR_VERSION}"
