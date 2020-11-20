@@ -60,10 +60,13 @@ jobs:
         # php version <> neos version compatibility
         include:
           - php-version: 7.2
-            neos-version: 3.3
+            # patched with fluid fix (pin fluid to older version):
+            neos-version: 3.3-cron
+            base-distribution-url: "https://github.com/cron-eu/neos-development-distribution"
             composer-version: 1
           - php-version: 7.3
             neos-version: 4.3
+            base-distribution-url: "https://github.com/neos/neos-development-distribution"
             composer-version: 2
     steps:
       -
@@ -90,7 +93,7 @@ jobs:
         # note: this requires a bash shell
         run: |
           docker run --name=web --link=db:db \
-               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+               --env="REPOSITORY_URL=${{ matrix.base-distribution-url }}" \
                --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-dev --no-progress" \
                --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
                --env="VERSION=${{ matrix.neos-version }}" \
@@ -172,7 +175,7 @@ jobs:
         name: "Run a single behat test from the Neos.Neos package"
         run: |
           docker run --rm --link=db:db \
-           --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+           --env="REPOSITORY_URL=${{ matrix.base-distribution-url }}" \
            --env="VERSION=${{ matrix.neos-version }}" \
            --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-progress" \
            --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
