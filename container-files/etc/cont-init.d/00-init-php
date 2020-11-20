@@ -1,11 +1,19 @@
 #!/usr/bin/with-contenv /bin/bash
 
 set -e
-echo "* Configuring PHP $(php -r "echo PHP_VERSION;") with composer v${COMPOSER_MAJOR_VERSION:-2}"
 
-# Choose composer v1 or v2 (defaults to 2)
-rm -f /usr/local/bin/composer
-ln -s /usr/local/bin/composer${COMPOSER_MAJOR_VERSION:-2} /usr/local/bin/composer
+# Choose composer v1 or v2
+if [ ! -z "$COMPOSER_MAJOR_VERSION" ]; then
+  if [ ! -e "/usr/local/bin/composer${COMPOSER_MAJOR_VERSION}" ]; then
+    echo "* ERROR: Desired composer v${COMPOSER_MAJOR_VERSION} does not exist!"
+  else
+    echo "* Choosing composer v${COMPOSER_MAJOR_VERSION}"
+    rm -f /usr/local/bin/composer
+    ln -s /usr/local/bin/composer${COMPOSER_MAJOR_VERSION} /usr/local/bin/composer
+  fi
+fi
+
+echo "* Configuring PHP $(php -r "echo PHP_VERSION;")"
 
 # Configure PHP setting based on environment variables
 echo "date.timezone=${PHP_TIMEZONE:-UTC}" > $PHP_INI_DIR/conf.d/date_timezone.ini
