@@ -89,7 +89,7 @@ jobs:
         run: |
           docker run --name=web --link=db:db \
                --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
-               --env="COMPOSER_INSTALL_PARAMS=--no-dev --no-progress" \
+               --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-dev --no-progress" \
                --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
                --env="VERSION=${{ matrix.neos-version }}" \
                --env="SITE_PACKAGE=Neos.Demo" \
@@ -168,7 +168,7 @@ jobs:
           docker run --rm --link=db:db \
            --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
            --env="VERSION=${{ matrix.neos-version }}" \
-           --env="COMPOSER_INSTALL_PARAMS=--no-progress" \
+           --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-progress" \
            --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
            --env="SITE_PACKAGE=Neos.Demo" \
           croneu/neos:${{ matrix.php-version }} sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
