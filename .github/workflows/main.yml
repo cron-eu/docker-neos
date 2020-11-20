@@ -1,4 +1,4 @@
-name: Docker Build
+name: "Docker Build and Test"
 
 on: [ push ]
 
@@ -6,19 +6,21 @@ jobs:
   # Build a docker image for a specific version and using a given target
   build_docker_image:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         target: [ base, behat ]
         php-version: [7.2, 7.3]
+
     steps:
       -
-        name: Checkout Sourcecode
+        name: "Checkout Sourcecode"
         uses: actions/checkout@v2
       -
-        name: Set up Docker Buildx
+        name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v1
       -
-        name: Cache Docker layers
+        name: "Cache Docker layers"
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
@@ -26,23 +28,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       -
-        name: Build Image for php ${{ matrix.php-version }}
+        name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
         with:
           build-args: COMPOSER_MAJOR_VERSION=1
           load: true
-          tags: croneu/neos:${{ matrix.php-version }}
+          tags: croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
           target: ${{ matrix.target }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
-        name: Save Docker Image
-        run: docker save croneu/neos:${{ matrix.php-version }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
+        name: "Save Docker Image"
+        run: docker save croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
 
-      - name: Upload Docker Image as Artifact
+      - name: "Upload Docker Image as Artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: docker-neos-${{ matrix.target }}-${{ matrix.php-version }}.tar.gz
+          name: docker-neos-${{ matrix.php-version }}-${{ matrix.target }}
           path: docker-neos-${{ matrix.target }}.tar.gz
 
   test_docker_image:
@@ -64,15 +66,15 @@ jobs:
             neos-version: 4.3
     steps:
       -
-        name: Download Artifacts
+        name: "Download artifacts"
         uses: actions/download-artifact@v2
         with:
-          name: docker-neos-base-${{ matrix.php-version }}.tar.gz
+          name: docker-neos-${{ matrix.php-version }}-base
       -
-        name: Load Docker Image
+        name: "Load docker image"
         run: docker load -i docker-neos-base.tar.gz
       -
-        name: Run the docker DB container (mariadb:10.3)
+        name: "Run the docker DB container (mariadb:10.3)"
         # use the official mariadb image using default values (user/pass etc.)
         run: |
          docker run -d --name=db \
@@ -83,7 +85,7 @@ jobs:
            --env="MYSQL_ROOT_PASSWORD=password" \
            mariadb:10.3
       -
-        name: Run Docker Image (background)
+        name: "Run docker image (background)"
         # note: this requires a bash shell
         run: |
           docker run --name=web --link=db:db \
@@ -93,7 +95,7 @@ jobs:
                --env="SITE_PACKAGE=Neos.Demo" \
                croneu/neos:${{ matrix.php-version }} &
       -
-        name: Test Neos Provisioning (max. 240 seconds)
+        name: "Wait for Neos provisioning (max. 240 seconds)"
         run: |
           i=0; while [ "$i" -le 24 ]; do
             if docker logs web 2>&1 | grep "ready to handle connections"
@@ -105,6 +107,9 @@ jobs:
             fi
           done
       -
+        name: "Output Docker logs before tests"
+        run: docker logs web
+      -
         name: "Test if the Neos DemoSite renders OK"
         run: |
           docker run --rm --volumes-from=web --link=web alpine /bin/sh -c 'apk add curl -q \
@@ -112,13 +117,13 @@ jobs:
               && curl -s -L --head http://web | grep "X-Flow-Powered" \
               && curl -s -L http://web | grep "This website is powered by Neos"'
       -
-        name: "Gather Docker Output"
+        name: "Store Docker output after tests"
         run: docker logs web &> docker-run.out.txt
       -
-        name: Upload Docker Output as an Artifact
+        name: "Upload Docker output after tests as an artifact"
         uses: actions/upload-artifact@v2
         with:
-          name: docker-run-${{ matrix.php-version }}.out.txt
+          name: docker-run-output-${{ matrix.php-version }}
           path: docker-run.out.txt
       -
         name: "Cleanup: Stop running docker containers"
@@ -143,15 +148,15 @@ jobs:
             neos-version: 4.3
     steps:
       -
-        name: Download Artifacts
+        name: "Download artifacts"
         uses: actions/download-artifact@v2
         with:
-          name: docker-neos-behat-${{ matrix.php-version }}.tar.gz
+          name: docker-neos-${{ matrix.php-version }}-behat
       -
-        name: Load Docker Image
+        name: "Load docker image"
         run: docker load -i docker-neos-behat.tar.gz
       -
-        name: Run the docker DB container (mariadb:10.3)
+        name: "Run the docker DB container (mariadb:10.3)"
         # use the official mariadb image using default values (user/pass etc.)
         run: |
          docker run -d --name=db \
@@ -162,7 +167,7 @@ jobs:
            --env="MYSQL_ROOT_PASSWORD=password" \
            mariadb:10.3
       -
-        name: "Run a single Behat Test from the Neos.Neos Package"
+        name: "Run a single behat test from the Neos.Neos package"
         run: |
           docker run --rm --link=db:db \
            --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
