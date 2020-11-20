@@ -27,8 +27,6 @@ FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as base
 MAINTAINER Remus Lazar <rl@cron.eu>
 
 ARG S6_VERSION="1.21.2.2"
-# allowed values: 1,2
-ARG COMPOSER_MAJOR_VERSION="2"
 
 ENV \
 	COMPOSER_MAJOR_VERSION=${COMPOSER_MAJOR_VERSION} \
@@ -83,9 +81,11 @@ RUN install-php-extensions \
 	yaml \
 	xdebug
 
-# Install composer
+# Install composer 1 and 2
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR_VERSION} \
+	&& mkdir -p /opt/bin && chmod a+w /opt/bin \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/opt/bin --filename=composer1 \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/opt/bin --filename=composer2 --2 \
 	&& rm -rf /tmp/composer-setup.php \
 	&& git config --global user.email "server@server.com" \
 	&& git config --global user.name "Server"

@@ -251,6 +251,7 @@ This image supports following environment variable for automatically configuring
 |ADMIN_PASSWORD|If set, would create a Neos `admin` user with such password, optional|
 |AWS_BACKUP_ARN|Automatically import the database from `${AWS_RESOURCES_ARN}db.sql` on the first container launch. Requires `AWS_ACCESS_KEY`, `AWS_SECRET_ACCESS_KEY` and `AWS_ENDPOINT` (optional, for S3-compatible storage) to be set in order to work.|
 |COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-source`|
+|COMPOSER_MAJOR_VERSION|default will use the latest (2), but you can use "1" to use the older version|
 |XDEBUG_ENABLED|`0` to disable the Xdebug extension (default, if XDEBUG_CONFIG is also not defined), `1` to enabled it|
 |XDEBUG_CONFIG|Pass Xdebug config string, e.g. `idekey=PHPSTORM remote_enable=1`|
 |IMPORT_GITHUB_PUB_KEYS|Will pull authorized keys allowed to connect to this image from your Github account(s).|

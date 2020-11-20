@@ -2,6 +2,10 @@
 
 set -e
 
+# Choose composer v1 or v2 (defaults to 2)
+rm -f /opt/bin/composer
+ln -s /opt/bin/composer${COMPOSER_MAJOR_VERSION:-2} /opt/bin/composer
+
 echo "date.timezone=${PHP_TIMEZONE:-UTC}" > $PHP_INI_DIR/conf.d/date_timezone.ini
 echo "memory_limit=${PHP_MEMORY_LIMIT:-4096M}" > $PHP_INI_DIR/conf.d/memory_limit.ini
 echo "upload_max_filesize=${PHP_UPLOAD_MAX_FILESIZE:-1024M}" > $PHP_INI_DIR/conf.d/upload_max_filesize.ini
