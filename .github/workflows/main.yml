@@ -31,7 +31,6 @@ jobs:
         name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
         with:
-          build-args: COMPOSER_MAJOR_VERSION=1
           load: true
           tags: croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
           target: ${{ matrix.target }}
