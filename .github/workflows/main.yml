@@ -31,7 +31,6 @@ jobs:
         name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
         with:
-          build-args: COMPOSER_MAJOR_VERSION=1
           load: true
           tags: ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
           target: ${{ matrix.target }}
@@ -61,9 +60,14 @@ jobs:
         # php version <> neos version compatibility
         include:
           - php-version: 7.2
-            neos-version: 3.3
+            # patched with fluid fix (pin fluid to older version):
+            neos-version: 3.3-cron
+            base-distribution-url: "https://github.com/cron-eu/neos-development-distribution"
+            composer-version: 1
           - php-version: 7.3
             neos-version: 4.3
+            base-distribution-url: "https://github.com/neos/neos-development-distribution"
+            composer-version: 2
     steps:
       -
         name: "Download artifacts"
@@ -89,8 +93,9 @@ jobs:
         # note: this requires a bash shell
         run: |
           docker run --name=web --link=db:db \
-               --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
-               --env="COMPOSER_INSTALL_PARAMS=--no-dev" \
+               --env="REPOSITORY_URL=${{ matrix.base-distribution-url }}" \
+               --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-dev --no-progress" \
+               --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
                --env="VERSION=${{ matrix.neos-version }}" \
                --env="SITE_PACKAGE=Neos.Demo" \
                ci/croneu/neos:${{ matrix.php-version }}-base &
@@ -143,9 +148,14 @@ jobs:
         # php version <> neos version compatibility
         include:
           - php-version: 7.2
-            neos-version: 3.3
+            # patched with fluid fix (pin fluid to older version):
+            neos-version: 3.3-cron
+            base-distribution-url: "https://github.com/cron-eu/neos-development-distribution"
+            composer-version: 1
           - php-version: 7.3
             neos-version: 4.3
+            base-distribution-url: "https://github.com/neos/neos-development-distribution"
+            composer-version: 2
     steps:
       -
         name: "Download artifacts"
@@ -170,9 +180,10 @@ jobs:
         name: "Run a single behat test from the Neos.Neos package"
         run: |
           docker run --rm --link=db:db \
-           --env="REPOSITORY_URL=https://github.com/neos/neos-development-distribution" \
+           --env="REPOSITORY_URL=${{ matrix.base-distribution-url }}" \
            --env="VERSION=${{ matrix.neos-version }}" \
-           --env="COMPOSER_INSTALL_PARAMS=--dev" \
+           --env="COMPOSER_INSTALL_PARAMS=--prefer-dist --no-progress" \
+           --env="COMPOSER_MAJOR_VERSION=${{ matrix.composer-version }}" \
            --env="SITE_PACKAGE=Neos.Demo" \
           ci/croneu/neos:${{ matrix.php-version }}-behat sh -c 's6-svwait -U /var/run/s6/services/selenium ; sudo -u www-data cd /data/www/Packages/Neos/Neos.Neos/Tests/Behavior /data/www/bin/behat Features/ExportImport.feature'
       -

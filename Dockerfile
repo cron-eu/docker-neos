@@ -27,11 +27,10 @@ FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as base
 MAINTAINER Remus Lazar <rl@cron.eu>
 
 ARG S6_VERSION="1.21.2.2"
-# allowed values: 1,2
-ARG COMPOSER_MAJOR_VERSION="2"
 
+# Defaults:
 ENV \
-	COMPOSER_MAJOR_VERSION=${COMPOSER_MAJOR_VERSION} \
+	COMPOSER_MAJOR_VERSION=2 \
 	COMPOSER_ALLOW_SUPERUSER=1 \
 	COMPOSER_INSTALL_PARAMS=--prefer-source
 
@@ -83,9 +82,11 @@ RUN install-php-extensions \
 	yaml \
 	xdebug
 
-# Install composer
+# Install composer 1 and 2
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --${COMPOSER_MAJOR_VERSION} \
+	&& chmod a+w /usr/local/bin \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer1 --1 \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer2 \
 	&& rm -rf /tmp/composer-setup.php \
 	&& git config --global user.email "server@server.com" \
 	&& git config --global user.name "Server"
@@ -123,8 +124,7 @@ RUN deluser www-data \
 	&& echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& chown ${UID}:${GID} -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
-	&& chmod +x /gitlab-keys.sh \
-	&& /bin/bash -c "source /init-php-conf.sh"
+	&& chmod +x /gitlab-keys.sh
 
 # Expose ports
 EXPOSE 80 22
