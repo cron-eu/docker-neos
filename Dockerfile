@@ -83,9 +83,9 @@ RUN install-php-extensions \
 
 # Install composer 1 and 2
 RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
-	&& mkdir -p /opt/bin && chmod a+w /opt/bin \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/opt/bin --filename=composer1 \
-	&& php /tmp/composer-setup.php --no-ansi --install-dir=/opt/bin --filename=composer2 --2 \
+	&& chmod a+w /usr/local/bin \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer1 --1 \
+	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer2 \
 	&& rm -rf /tmp/composer-setup.php \
 	&& git config --global user.email "server@server.com" \
 	&& git config --global user.name "Server"
@@ -123,8 +123,7 @@ RUN deluser www-data \
 	&& echo "access.log = /dev/null" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
 	&& chown ${UID}:${GID} -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
-	&& chmod +x /gitlab-keys.sh \
-	&& /bin/bash -c "source /init-php-conf.sh"
+	&& chmod +x /gitlab-keys.sh
 
 # Expose ports
 EXPOSE 80 22
