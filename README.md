@@ -53,7 +53,6 @@ services:
       IMPORT_GITHUB_PUB_KEYS: 'my-github-username'
       #IMPORT_GITLAB_PUB_KEYS: 'my-gitlab-username'
       #GITLAB_URL: 'https://gitlab.my-company.org'
-      COMPOSER_INSTALL_PARAMS: '--no-dev'
   db:
     image: mariadb:latest
     expose:
@@ -158,7 +157,6 @@ services:
       # use a separate DB container for testing
       DB_HOST: db-test
       DB_DATABASE: db
-      COMPOSER_INSTALL_PARAMS: '--dev --prefer-dist'
 
   db-test:
     image: mariadb:latest
@@ -250,7 +248,7 @@ This image supports following environment variable for automatically configuring
 |SITE_PACKAGE|Neos website package with exported website data to be imported, optional|
 |ADMIN_PASSWORD|If set, would create a Neos `admin` user with such password, optional|
 |AWS_BACKUP_ARN|Automatically import the database from `${AWS_RESOURCES_ARN}db.sql` on the first container launch. Requires `AWS_ACCESS_KEY`, `AWS_SECRET_ACCESS_KEY` and `AWS_ENDPOINT` (optional, for S3-compatible storage) to be set in order to work.|
-|COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-source`|
+|COMPOSER_INSTALL_PARAMS|composer install parameters, defaults to `--prefer-dist --no-progress`|
 |COMPOSER_MAJOR_VERSION|default will use the latest (2), but you can use "1" to use the older version|
 |XDEBUG_ENABLED|`0` to disable the Xdebug extension (default, if XDEBUG_CONFIG is also not defined), `1` to enabled it|
 |XDEBUG_CONFIG|Pass Xdebug config string, e.g. `idekey=PHPSTORM remote_enable=1`|
