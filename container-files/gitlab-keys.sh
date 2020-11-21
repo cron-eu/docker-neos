@@ -20,13 +20,13 @@ keys=$(echo "$api_response" | grep -o -E 'ssh-\w+\s+[^\"]+')
 if [ -z "$keys" ]; then
   echo "WARNING: ${GITLAB_URL} doesn't have any keys for '$user' user."
 else
-  echo "Importing $user's ${GITLAB_URL} pub key(s) to `whoami` account..."
+  echo "Importing $user's ${GITLAB_URL} pub key(s) to $(whoami) account..."
 
   [ -d ~/.ssh ] || mkdir ~/.ssh
   [ -f ~/.ssh/authorized_keys ] || touch ~/.ssh/authorized_keys
 
   for key in $keys; do
     echo "Imported ${GITLAB_URL} $user key: $key"
-    grep -q "$key" ~/.ssh/authorized_keys || echo "$key ${user}@${GITLAB_URL}" >> ~/.ssh/authorized_keys
+    grep -q "$key" ~/.ssh/authorized_keys || echo "$key ${user}@${GITLAB_URL}" >>~/.ssh/authorized_keys
   done
 fi

@@ -32,7 +32,7 @@ ARG S6_VERSION="1.21.2.2"
 ENV \
 	COMPOSER_MAJOR_VERSION=2 \
 	COMPOSER_ALLOW_SUPERUSER=1 \
-	COMPOSER_INSTALL_PARAMS=--prefer-source
+	COMPOSER_INSTALL_PARAMS="--prefer-dist --no-progress"
 
 # User / Group for www-data user. Keep 1000:50 for being able to mount local volumes and having access to it
 ARG UID="1000"

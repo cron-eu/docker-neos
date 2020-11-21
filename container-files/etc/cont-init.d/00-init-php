@@ -25,6 +25,6 @@ echo "max_execution_time=${PHP_MAX_EXECUTION_TIME:-240}" > $PHP_INI_DIR/conf.d/m
 echo "max_input_vars=${PHP_MAX_INPUT_VARS:-1500}" > $PHP_INI_DIR/conf.d/max_input_vars.ini
 
 # We only need one timezone data
-apk add --no-cache -q tzdata
+apk add --no-cache -q tzdata >/dev/null
 cp /usr/share/zoneinfo/${PHP_TIMEZONE:-UTC} /etc/localtime
-apk del tzdata
+apk del -q tzdata
