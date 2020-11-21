@@ -5,7 +5,7 @@ set -e
 # Generate SSH host keys on container (re)start if they're not present
 [ -f /etc/ssh/ssh_host_rsa_key ] || ssh-keygen -q -b 1024 -N '' -t rsa -f /etc/ssh/ssh_host_rsa_key
 [ -f /etc/ssh/ssh_host_dsa_key ] || ssh-keygen -q -b 1024 -N '' -t dsa -f /etc/ssh/ssh_host_dsa_key
-[ -f /etc/ssh/ssh_host_ecdsa_key ] || ssh-keygen -q -b 521  -N '' -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key
+[ -f /etc/ssh/ssh_host_ecdsa_key ] || ssh-keygen -q -b 521 -N '' -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key
 [ -f /etc/ssh/ssh_host_ed25519_key ] || ssh-keygen -q -b 1024 -N '' -t ed25519 -f /etc/ssh/ssh_host_ed25519_key
 
 mkdir -p /root/.ssh
@@ -18,10 +18,10 @@ Host *
 EOF
 
 # Use the supplied RSA key for the root user (composer runs as root)
-if [ -f /run/secrets/id_rsa ] ; then
-	echo "* SSH RSA key found in docker secrets. Save it to /root/.ssh/id_rsa."
-	cp /run/secrets/id_rsa /root/.ssh/id_rsa
-	chmod 600 /root/.ssh/id_rsa # just in case
+if [ -f /run/secrets/id_rsa ]; then
+  echo "* SSH RSA key found in docker secrets. Save it to /root/.ssh/id_rsa."
+  cp /run/secrets/id_rsa /root/.ssh/id_rsa
+  chmod 600 /root/.ssh/id_rsa # just in case
 fi
 
 echo "* Setting up environment for www-data user"
@@ -37,22 +37,22 @@ PASS=$(pwgen -c -n -1 16)
 echo "www-data:$PASS" | chpasswd 2>&1 >/dev/null
 
 if [ -n "${IMPORT_GITHUB_PUB_KEYS}" ]; then
-	# Read passed to container ENV IMPORT_GITHUB_PUB_KEYS variable with coma-separated
-	# user list and add public key(s) for these users to authorized_keys on 'www-data' account.
-	for user in $(echo $IMPORT_GITHUB_PUB_KEYS | tr "," "\n"); do
-		echo "* Github user: $user"
-		su www-data -c "/github-keys.sh $user"
-	done
+  # Read passed to container ENV IMPORT_GITHUB_PUB_KEYS variable with coma-separated
+  # user list and add public key(s) for these users to authorized_keys on 'www-data' account.
+  for user in $(echo $IMPORT_GITHUB_PUB_KEYS | tr "," "\n"); do
+    echo "* Github user: $user"
+    su www-data -c "/github-keys.sh $user"
+  done
 elif [ -n "${IMPORT_GITLAB_PUB_KEYS}" ]; then
-	# Read passed to container ENV IMPORT_GITLAB_PUB_KEYS variable with coma-separated
-	# user list and add public key(s) for these users to authorized_keys on 'www-data' account.
-	for user in $(echo $IMPORT_GITLAB_PUB_KEYS | tr "," "\n"); do
-		echo "* Gitlab user: $user"
-		su www-data -c "/gitlab-keys.sh ${GITLAB_URL} $user"
-	done
+  # Read passed to container ENV IMPORT_GITLAB_PUB_KEYS variable with coma-separated
+  # user list and add public key(s) for these users to authorized_keys on 'www-data' account.
+  for user in $(echo $IMPORT_GITLAB_PUB_KEYS | tr "," "\n"); do
+    echo "* Gitlab user: $user"
+    su www-data -c "/gitlab-keys.sh ${GITLAB_URL} $user"
+  done
 else
-	echo "WARNING: env variable \$IMPORT_GITHUB_PUB_KEYS or \$IMPORT_GITLAB_PUB_KEYS is not set. Please set it to have access to this container via SSH."
+  echo "WARNING: env variable \$IMPORT_GITHUB_PUB_KEYS or \$IMPORT_GITLAB_PUB_KEYS is not set. Please set it to have access to this container via SSH."
 fi
 
 # Pass custom environment to SSH users, skip standard shell related vars
-env | egrep -v '^(_|CWD|MAIL|CHARSET|LANG|SSH|TERM|PATH|HOME|PWD|USER|SHELL|HOSTNAME|LOGNAME)' >> /etc/environment
+env | egrep -v '^(_|CWD|MAIL|CHARSET|LANG|SSH|TERM|PATH|HOME|PWD|USER|SHELL|HOSTNAME|LOGNAME)' >>/etc/environment
