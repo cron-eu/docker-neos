@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -e
 
 function update_settings_yaml() {
   local settings_file=$1
@@ -9,7 +9,7 @@ function update_settings_yaml() {
 
   [ -f $settings_file ] || return 0
 
-  echo "Configuring $settings_file..."
+	echo "* Configuring Neos $settings_file..."
 	sed -i -r "1,/driver:/s/port: .+?/driver: pdo_mysql/g" $settings_file
 	sed -i -r "1,/dbname:/s/dbname: .+?/dbname: \"$DB_DATABASE\"/g" $settings_file
 	sed -i -r "1,/user:/s/user: .+?/user: \"$DB_USER\"/g" $settings_file
@@ -40,7 +40,7 @@ function create_settings_yaml() {
 # Provision conainer at first run
 if [ -f /data/www/composer.json ] || [ -f /data/www-provisioned/composer.json ] || [ -z "$REPOSITORY_URL" -a ! -f "/src/composer.json" ]
 then
-	echo "Do nothing, initial provisioning done"
+	echo "* Neos Provisioning: Do nothing, initial provisioning done"
 
 	# Update DB Settings to keep them in sync with the docker ENV vars
   update_neos_settings
@@ -59,11 +59,14 @@ else
   cd /data/www-provisioned
 
   if [ "${REPOSITORY_URL}" ] ; then
+    echo "* Cloning project: $REPOSITORY_URL ($VERSION)"
     git clone -b $VERSION $REPOSITORY_URL .
   else
+    echo "* Cloning project: local files"
     rsync -r --exclude node_modules --exclude .git --exclude /Data /src/ .
   fi
 
+  echo "* Running composer install $COMPOSER_INSTALL_PARAMS"
   composer install $COMPOSER_INSTALL_PARAMS
   update_neos_settings
 
