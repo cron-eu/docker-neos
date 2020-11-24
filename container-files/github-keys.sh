@@ -8,7 +8,7 @@ IFS="$(printf '\n\t')"
 
 user=$1
 api_response=$(curl -sSLi https://api.github.com/users/$user/keys)
-remaining_rate_limit=$(echo "$api_response" | grep -o -E "X-RateLimit-Remaining:\s[0-9]+" | awk '{print $2}')
+remaining_rate_limit=$(echo "$api_response" | grep -i -o -E "x-ratelimit-remaining:\s[0-9]+" | awk '{print $2}')
 keys=$(echo $api_response | grep -o -E 'ssh-\w+\s+[^\"]+')
 
 if [ $remaining_rate_limit -eq 0 ]; then
