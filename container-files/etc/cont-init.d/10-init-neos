@@ -2,7 +2,6 @@
 set -e
 
 # Layout default directory structure\
-mkdir -p /data/logs
 mkdir -p /data/tmp/nginx
 
 ###
