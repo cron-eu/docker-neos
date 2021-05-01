@@ -44,9 +44,6 @@ if [ -f /data/www/composer.json ] || [ -f /data/www-provisioned/composer.json ] 
   # Update DB Settings to keep them in sync with the docker ENV vars
   update_neos_settings
 else
-  # Make sure to init xdebug, not to slow-down composer
-  /init-xdebug.sh
-
   # Layout default directory structure
   mkdir -p /data/www-provisioned
 
