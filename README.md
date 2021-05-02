@@ -54,7 +54,7 @@ services:
       #IMPORT_GITLAB_PUB_KEYS: 'my-gitlab-username'
       #GITLAB_URL: 'https://gitlab.my-company.org'
   db:
-    image: mariadb:latest
+    image: mariadb:10
     expose:
       - 3306
     volumes:
@@ -144,7 +144,7 @@ To run Behat Tests, an additional Docker Image is provided. To use this addition
 image, use a `docker-compose` overlay, e.g. `docker-compose.behat.yml`:
 
 ```yaml
-version: '3.1'
+version: '3.7'
 
 services:
   web:
@@ -159,7 +159,7 @@ services:
       DB_DATABASE: db
 
   db-test:
-    image: mariadb:latest
+    image: mariadb:10
     expose:
       - 3306
     volumes:
@@ -266,12 +266,12 @@ This image supports following environment variable for automatically configuring
 
 ## Provisioning Process
 
-For initial privisioning the container, you can use the `REPOSITORY_URL` ENV var.
+For initial provisioning the container, you can use the `REPOSITORY_URL` ENV var.
 If so, the initialization logic will perform a `git clone`.
 
 Another alternative is to use a Docker mount or volume. Mount the source dir to
 `/src` and make sure not to set the `REPOSITORY_URL`. Then the init logic will just
-`rsync -a` from /src to `/data/www-provisioned` instead.
+`rsync -a` from /src to `/data/www` instead.
 
 ## Using Xdebug with Flow / Neos
 
