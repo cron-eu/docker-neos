@@ -81,9 +81,10 @@ fi
 # flow cmd wrapper to execute flow as user
 SUDO="sudo -u ${WWW_USER}"
 FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
-FLOW_SETTINGS_FILENAME="Settings.yaml"
 
-if [ "$FLOW_MAJOR_VERSION" > "4" ]; then
+FLOW_SETTINGS_FILENAME="Settings.yaml"
+# from flow > 4 on we can use Settings.*.yaml files
+if [ -z "$FLOW_MAJOR_VERSION" -o "$FLOW_MAJOR_VERSION" > "4" ]; then
   FLOW_SETTINGS_FILENAME="Settings.docker.yaml"
 fi
 
