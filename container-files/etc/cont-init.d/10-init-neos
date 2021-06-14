@@ -81,11 +81,11 @@ fi
 # flow cmd wrapper to execute flow as user
 SUDO="sudo -u ${WWW_USER}"
 FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
+FLOW_SETTINGS_FILENAME="Settings.docker.yaml"
 
-FLOW_SETTINGS_FILENAME="Settings.yaml"
-# from flow > 4 on we can use Settings.*.yaml files
-if [ -z "$FLOW_MAJOR_VERSION" -o "$FLOW_MAJOR_VERSION" > "4" ]; then
-  FLOW_SETTINGS_FILENAME="Settings.docker.yaml"
+# legacy mode for flow 4.x
+if [ -n "$FLOW_MAJOR_VERSION" -a "$FLOW_MAJOR_VERSION" < "5" ]; then
+  FLOW_SETTINGS_FILENAME="Settings.yaml"
 fi
 
 echo "* Running composer install $COMPOSER_INSTALL_PARAMS"
