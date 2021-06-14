@@ -81,12 +81,17 @@ fi
 # flow cmd wrapper to execute flow as user
 SUDO="sudo -u ${WWW_USER}"
 FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
+FLOW_SETTINGS_FILENAME="Settings.yaml"
+
+if [ "$FLOW_MAJOR_VERSION" > "4" ]; then
+  FLOW_SETTINGS_FILENAME="Settings.docker.yaml"
+fi
 
 echo "* Running composer install $COMPOSER_INSTALL_PARAMS"
 ${SUDO} composer install $COMPOSER_INSTALL_PARAMS
 
 # Make sure our flow is using the DB_* variables from docker to connect to the DB
-cat <<EOF > Configuration/Settings.docker.yaml
+cat <<EOF > "Configuration/${FLOW_SETTINGS_FILENAME}"
 # Use variables to configure our persistence
 Neos:
   Flow:
