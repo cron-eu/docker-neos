@@ -1,0 +1,26 @@
+---
+version: '3.7'
+
+services:
+  web:
+    # use the neos-alpine behat image instead of the default one
+    image: croneu/neos:7.3-behat
+    hostname: behat-runner
+    ports:
+      - '5900:5900'
+    environment:
+      # use a separate DB container for testing
+      DB_HOST: db-test
+      DB_DATABASE: db
+
+  db-test:
+    image: mariadb:10
+    expose:
+      - 3306
+    volumes:
+      - /var/lib/data
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'pass'
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'

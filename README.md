@@ -334,6 +334,24 @@ docker login
 make push-7.3
 ```
 
+### Test the Docker Image
+
+To test the image you can use the supplied docker-compose files in the `example` directory. For example, to run a behat enabled environment using the official Neos Distribution Package, do:
+
+```shell
+cd example
+docker-compose -f docker-compose.yml -f docker-compose.behat.yml up -d
+# ssh-keygen -R \[$(docker-machine ip $DOCKER_MACHINE_NAME)\]:1122
+ssh www-data@$(docker-machine ip $DOCKER_MACHINE_NAME) -p 1122
+```
+
+Inside the docker container, run this simple behat test:
+
+```
+cd Packages/Neos/Neos.Neos/Tests/Behavior
+behat Features/ExportImport.feature
+```
+
 ## MIT Licence
 
 See the [LICENSE](LICENSE) file.
