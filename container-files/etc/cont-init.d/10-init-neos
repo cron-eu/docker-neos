@@ -92,6 +92,8 @@ Neos:
   Flow:
     persistence:
       backendOptions:
+        # we need that to ensure that the Testing/Behat FLOW_CONTEXT will use the correct driver
+        driver: pdo_mysql
         dbname: "%env:DB_DATABASE%"
         user: "%env:DB_USER%"
         password: "%env:DB_PASS%"

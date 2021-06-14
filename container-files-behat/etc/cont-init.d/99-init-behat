@@ -35,3 +35,8 @@ if ${FLOW} help | grep behat:setup >/dev/null ; then
 else
   echo "* WARNING: behat package does not seem to be installed"
 fi
+
+# Make sure to configure the Testing/Behat context correctly, using the existing docker settings file
+# TL:DR the reason doing that is that the Testing context will mangle the Flow' persistence configuration
+mkdir -p Configuration/Testing/Behat
+cp Configuration/Settings.docker.yaml Configuration/Testing/Behat/
