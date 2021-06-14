@@ -42,7 +42,9 @@ jobs:
           target: ${{ matrix.target }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-          build-args: FLOW_MAJOR_VERSION=${{ matrix.flow-major-version }},PHP_VERSION=${{ matrix.php-version }}
+          build-args: |
+            FLOW_MAJOR_VERSION=${{ matrix.flow-major-version }}
+            PHP_VERSION=${{ matrix.php-version }}
       -
         name: "Save Docker Image"
         run: docker save ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
