@@ -34,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       -
-        name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
+        name: "Build Image for php ${{ matrix.php-version }}, flow ${{ matrix.flow-major-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
         with:
           load: true
