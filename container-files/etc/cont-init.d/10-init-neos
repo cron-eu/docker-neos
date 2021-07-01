@@ -84,7 +84,7 @@ FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
 FLOW_SETTINGS_FILENAME="Settings.docker.yaml"
 
 # legacy mode for flow 4.x
-if [ -n "$FLOW_MAJOR_VERSION" -a "$FLOW_MAJOR_VERSION" < "5" ]; then
+if [ -n "$FLOW_MAJOR_VERSION_ENV" -a "$FLOW_MAJOR_VERSION_ENV" < "5" ]; then
   FLOW_SETTINGS_FILENAME="Settings.yaml"
 fi
 
