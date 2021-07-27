@@ -1,7 +1,6 @@
 ARG IMAGE_VERSION="latest"
 ARG PHP_VERSION="7.2"
 ARG ALPINE_VERSION=""
-ARG FLOW_MAJOR_VERSION=""
 
 # ALPINE_VERSION defines the Firefox version.
 # PHP maintaners only build PHP images for a couple variants of "selected" ALPINE_VERSION's.
@@ -33,8 +32,7 @@ ARG S6_VERSION="1.21.2.2"
 ENV \
 	COMPOSER_MAJOR_VERSION=2 \
 	COMPOSER_ALLOW_SUPERUSER=1 \
-	COMPOSER_INSTALL_PARAMS="--prefer-dist --no-progress" \
-	FLOW_MAJOR_VERSION_ENV=$FLOW_MAJOR_VERSION
+	COMPOSER_INSTALL_PARAMS="--prefer-dist --no-progress"
 
 # User / Group for www-data user. Keep 1000:50 for being able to mount local volumes and having access to it
 ARG UID="1000"

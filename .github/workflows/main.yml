@@ -11,12 +11,6 @@ jobs:
       matrix:
         target: [ base, behat ]
         php-version: [7.2, 7.3]
-        # php version <> flow major version matching
-        include:
-          - php-version: 7.2
-            flow-major-version: 4
-          - php-version: 7.3
-            flow-major-version: 5
 
     steps:
       -
@@ -34,7 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
       -
-        name: "Build Image for php ${{ matrix.php-version }}, flow ${{ matrix.flow-major-version }} (${{ matrix.target }})"
+        name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
         with:
           load: true
@@ -42,8 +36,6 @@ jobs:
           target: ${{ matrix.target }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-          build-args: |
-            FLOW_MAJOR_VERSION="${{ matrix.flow-major-version }}"
       -
         name: "Save Docker Image"
         run: docker save ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
