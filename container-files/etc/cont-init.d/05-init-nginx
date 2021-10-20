@@ -2,3 +2,6 @@
 set -e
 
 sed -Ei "s/(listen[[:space:]]+)[[:digit:]]+([[:space:]]+default_server)/\1${WWW_PORT}\2/" /etc/nginx/nginx.conf
+
+mkdir -p /data/logs
+mkdir -p /data/tmp/nginx

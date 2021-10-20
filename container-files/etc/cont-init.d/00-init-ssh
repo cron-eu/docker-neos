@@ -18,6 +18,12 @@ Host *
 EOF
 
 # Use the supplied RSA key for the root user (composer runs as root)
+# In docker-compose.yml:
+# secrets:
+#  id_rsa:
+#    file: ./docker/deploy_rsa
+# Note: this is no longer working with "docker compose v2" out of the box,
+#       so we don't be using it anymore in future
 if [ -f /run/secrets/id_rsa ]; then
   echo "* SSH RSA key found in docker secrets. Save it to /root/.ssh/id_rsa."
   cp /run/secrets/id_rsa /root/.ssh/id_rsa

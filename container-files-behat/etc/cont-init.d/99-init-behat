@@ -1,20 +1,42 @@
 #!/usr/bin/with-contenv /bin/bash
-set -ex
-
-# flow cmd wrapper to execute flow as user
-FLOW="sudo -u www-data FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
-
-echo "127.0.0.1 behat.dev.local" >> /etc/hosts
-
-chmod +x /setup-behat-yml.sh
-/setup-behat-yml.sh "behat.dev.local:${WWW_PORT}"
+set -e
 
 # root dir where SITE_PACKAGE repo resides
 WWW_ROOT="/data/www"
+WWW_USER=www-data
+
+# flow cmd wrapper to execute flow as user
+SUDO="sudo -u ${WWW_USER}"
+FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
+
+BEHAT_HOSTNAME="behat.dev.local"
+BEHAT_VHOST="${BEHAT_HOSTNAME}:${WWW_PORT}"
+
+echo "* Configure behat hostname"
+
+echo "127.0.0.1 $BEHAT_HOSTNAME" >> /etc/hosts
 
 cd ${WWW_ROOT} || exit 1
 
+for f in Packages/*/*/Tests/Behavior/behat.yml.dist; do
+  target_file=${f/.dist/}
+  if [ ! -f $target_file ]; then
+    cp $f $target_file
+  fi
+  # Find all base_url: setting (might be commented out) and replace it with $behat_vhost
+  sed -i -r "s/(#\s?)?base_url:.+/base_url: http:\/\/${BEHAT_VHOST}\//g" $target_file
+  echo "* Configured for Behat testing: $target_file"
+done
+
 if ${FLOW} help | grep behat:setup >/dev/null ; then
-	${FLOW} behat:setup
-	${FLOW} cache:warmup
+  echo "* Calling behat:setup"
+  ${FLOW} behat:setup
+  ${FLOW} cache:warmup
+else
+  echo "* WARNING: behat package does not seem to be installed"
 fi
+
+# Make sure to configure the Testing/Behat context correctly, using the existing docker settings file
+# TL:DR the reason doing that is that the Testing context will mangle the Flow' persistence configuration
+mkdir -p Configuration/Testing/Behat
+cp Configuration/Settings*.yaml Configuration/Testing/Behat/
