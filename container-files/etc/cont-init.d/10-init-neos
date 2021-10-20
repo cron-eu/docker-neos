@@ -34,11 +34,12 @@ if [ "${REPOSITORY_URL}" ]; then
   git clone -b $VERSION $REPOSITORY_URL .
 else
   echo "* Cloning project from local files"
-  rsync -r \
+  # Use "-r" instead of "-a" to avoid tons of "failed to set permissions on" in several places
+  # Use "-l" to avoid the "skipping non-regular file" errors
+  rsync -rl \
     --exclude node_modules \
     --exclude .git \
     --exclude /Data \
-    --exclude /Packages \
     /src/ .
 fi
 
@@ -83,6 +84,7 @@ SUDO="sudo -u ${WWW_USER}"
 FLOW="${SUDO} FLOW_CONTEXT=${FLOW_CONTEXT} ./flow"
 FLOW_SETTINGS_FILENAME="Settings.yaml"
 
+# Run composer as "www-data"
 echo "* Running composer install $COMPOSER_INSTALL_PARAMS"
 ${SUDO} composer install $COMPOSER_INSTALL_PARAMS
 
