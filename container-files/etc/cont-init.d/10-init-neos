@@ -38,7 +38,7 @@ else
   # Use "-l" to avoid the "skipping non-regular file" errors
   rsync -rl \
     --exclude node_modules \
-    --exclude .git \
+    --exclude /.git \
     --exclude /Data \
     /src/ .
 fi
