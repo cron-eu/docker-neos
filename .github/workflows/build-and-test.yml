@@ -32,15 +32,14 @@ jobs:
             ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-${{ matrix.target }}-
             ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-
       -
-        name: Docker BuildX ${{ matrix.php-version }} (${{ matrix.target }}) (build)
-        run: |
-          docker buildx build \
-            --cache-from "type=local,src=/tmp/.buildx-cache" \
-            --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --target ${{ matrix.target }} \
-            --output "type=image,push=false" \
-            --tag ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
-            --file ./Dockerfile ./
+        name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          tags: ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }}
+          target: ${{ matrix.target }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
       -
         name: "Save Docker Image"
         run: docker save ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} | gzip > docker-neos-${{ matrix.target }}.tar.gz
