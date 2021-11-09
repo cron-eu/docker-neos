@@ -27,9 +27,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-buildx-${{ matrix.php-version }}-${{ matrix.target }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-buildx-${{ matrix.php-version }}-${{ matrix.target }}-
+            ${{ runner.os }}-buildx-${{ matrix.php-version }}-
       -
         name: Login to DockerHub
         uses: docker/login-action@v1
