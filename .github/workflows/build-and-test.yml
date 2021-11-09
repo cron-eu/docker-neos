@@ -1,6 +1,9 @@
-name: "Docker Build and Test"
+name: "Build and Test"
 
-on: [ push ]
+on:
+  push:
+    branches-ignore:
+      - master
 
 jobs:
   # Build a docker image for a specific version and using a given target
@@ -24,9 +27,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          key: ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-${{ matrix.target }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-
+            ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-${{ matrix.target }}-
+            ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-
       -
         name: "Build Image for php ${{ matrix.php-version }} (${{ matrix.target }})"
         uses: docker/build-push-action@v2
