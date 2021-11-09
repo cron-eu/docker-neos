@@ -3,7 +3,7 @@ name: "Build and Test"
 on:
   push:
     branches-ignore:
-      - "use-buildx"
+      - master
 
 jobs:
   # Build a docker image for a specific version and using a given target
