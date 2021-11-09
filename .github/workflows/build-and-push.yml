@@ -3,7 +3,7 @@ name: "Deploy Image to DockerHub"
 on:
   push:
     branches:
-      - master
+      - "use-buildx"
 
 jobs:
   # Build a docker image for a specific version and using a given target
