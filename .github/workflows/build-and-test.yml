@@ -20,9 +20,6 @@ jobs:
         name: "Checkout Sourcecode"
         uses: actions/checkout@v2
       -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      -
         name: "Set up Docker Buildx"
         uses: docker/setup-buildx-action@v1
       -
@@ -30,17 +27,16 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ matrix.php-version }}-${{ matrix.target }}-${{ github.sha }}
+          key: ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-${{ matrix.target }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-buildx-${{ matrix.php-version }}-${{ matrix.target }}-
-            ${{ runner.os }}-buildx-${{ matrix.php-version }}-
+            ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-${{ matrix.target }}-
+            ${{ runner.os }}-test-buildx-${{ matrix.php-version }}-
       -
         name: Docker BuildX ${{ matrix.php-version }} (${{ matrix.target }}) (build)
         run: |
           docker buildx build \
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
-            --platform linux/amd64 \
             --target ${{ matrix.target }} \
             --output "type=image,push=false" \
             --tag ci/croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
