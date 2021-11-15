@@ -42,7 +42,7 @@ jobs:
             --cache-to "type=local,dest=/tmp/.buildx-cache" \
             --platform linux/amd64,linux/arm64 \
             --target ${{ matrix.target }} \
-            --build-arg PHP_VERSION="${{ matrix.php-version }}"
+            --build-arg PHP_VERSION="${{ matrix.php-version }}" \
             --output "type=image,push=false" \
             --tag croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
             --file ./Dockerfile ./
@@ -59,7 +59,7 @@ jobs:
             --cache-from "type=local,src=/tmp/.buildx-cache" \
             --platform linux/amd64,linux/arm64 \
             --target ${{ matrix.target }} \
-            --build-arg PHP_VERSION="${{ matrix.php-version }}"
+            --build-arg PHP_VERSION="${{ matrix.php-version }}" \
             --output "type=image,push=true" \
             --tag croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
             --file ./Dockerfile ./
