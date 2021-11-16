@@ -14,6 +14,11 @@ jobs:
       matrix:
         target: [ base, behat ]
         php-version: [7.2, 7.3]
+        include:
+          - target: base
+            docker-tag: ''
+          - target: behat
+            docker-tag: '-behat'
 
     steps:
       -
@@ -44,7 +49,7 @@ jobs:
             --target ${{ matrix.target }} \
             --build-arg PHP_VERSION="${{ matrix.php-version }}" \
             --output "type=image,push=false" \
-            --tag croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
+            --tag croneu/neos:${{ matrix.php-version }}${{ matrix.docker-tag }} \
             --file ./Dockerfile ./
       -
         name: Login to DockerHub
@@ -61,5 +66,5 @@ jobs:
             --target ${{ matrix.target }} \
             --build-arg PHP_VERSION="${{ matrix.php-version }}" \
             --output "type=image,push=true" \
-            --tag croneu/neos:${{ matrix.php-version }}-${{ matrix.target }} \
+            --tag croneu/neos:${{ matrix.php-version }}${{ matrix.docker-tag }} \
             --file ./Dockerfile ./
