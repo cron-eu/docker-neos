@@ -107,6 +107,12 @@ Neos:
 EOF
 else
   echo "* Skipping creating Configuration/${FLOW_SETTINGS_FILENAME} (already exists)"
+  echo "* Will update Flow.persistence.backendOptions settings in file Configuration/${FLOW_SETTINGS_FILENAME}"
+  yq e -i '.Neos.Flow.persistence.backendOptions.driver = pdo_mysql ' Configuration/${FLOW_SETTINGS_FILENAME}
+  yq e -i '.Neos.Flow.persistence.backendOptions.dbname = "%env:DB_DATABASE%" ' Configuration/${FLOW_SETTINGS_FILENAME}
+  yq e -i '.Neos.Flow.persistence.backendOptions.user = "%env:DB_USER%" ' Configuration/${FLOW_SETTINGS_FILENAME}
+  yq e -i '.Neos.Flow.persistence.backendOptions.password = "%env:DB_PASS%" ' Configuration/${FLOW_SETTINGS_FILENAME}
+  yq e -i '.Neos.Flow.persistence.backendOptions.host = "%env:DB_HOST%" ' Configuration/${FLOW_SETTINGS_FILENAME}
 fi
 
 echo "* Running doctrine:migrate"
