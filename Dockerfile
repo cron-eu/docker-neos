@@ -62,7 +62,7 @@ RUN set -x \
 
 # Install needed tools
 RUN set -x \
-	&& apk add --no-cache make tar rsync curl jq sed bash yaml less mysql-client git nginx openssh openssh-server-pam pwgen sudo s6
+	&& apk add --no-cache make tar rsync curl jq yq sed bash yaml less mysql-client git nginx openssh openssh-server-pam pwgen sudo s6
 
 # Install required PHP extensions
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
