@@ -1,6 +1,6 @@
 ARG IMAGE_VERSION="latest"
 ARG PHP_VERSION="7.2"
-ARG ALPINE_VERSION="3.14"
+ARG ALPINE_VERSION="3.8"
 
 # ALPINE_VERSION defines the Firefox version.
 # PHP maintaners only build PHP images for a couple variants of "selected" ALPINE_VERSION's.
@@ -23,7 +23,7 @@ ARG ALPINE_VERSION="3.14"
 
 # -------------------------------------------------------------------------
 
-FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as base
+FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as builder
 
 MAINTAINER Remus Lazar <rl@cron.eu>
 
@@ -63,7 +63,7 @@ RUN set -x \
 
 # Install needed tools
 RUN set -x \
-	&& apk add --no-cache make tar rsync curl jq yq sed bash yaml less mysql-client git nginx openssh openssh-server-pam pwgen sudo s6
+	&& apk add --no-cache make tar rsync curl jq sed bash yaml less mysql-client git nginx openssh openssh-server-pam pwgen sudo s6
 
 # Install required PHP extensions
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
@@ -126,6 +126,15 @@ RUN deluser www-data \
 	&& chown ${UID}:${GID} -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
 	&& chmod +x /gitlab-keys.sh
+
+FROM builder as yq-installer
+
+# Install yq (on older alpine versions)
+RUN echo "http://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN apk update && apk add --no-cache yq
+
+FROM builder as base
+COPY --from=yq-installer /usr/bin/yq /usr/local/bin/yq
 
 # Expose ports
 EXPOSE 80 22
