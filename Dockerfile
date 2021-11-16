@@ -1,6 +1,6 @@
 ARG IMAGE_VERSION="latest"
 ARG PHP_VERSION="7.2"
-ARG ALPINE_VERSION=""
+ARG ALPINE_VERSION="3.14"
 
 # ALPINE_VERSION defines the Firefox version.
 # PHP maintaners only build PHP images for a couple variants of "selected" ALPINE_VERSION's.
@@ -19,6 +19,7 @@ ARG ALPINE_VERSION=""
 # Alpine 3.9 - firefox-esr 52.9 - works with selenium 2.53
 # Alpine 3.10 - firefox-esr 60
 # Alpine 3.12 - firefox-esr 78
+# Alpine 3.14 - firefox-esr 89
 
 # -------------------------------------------------------------------------
 
