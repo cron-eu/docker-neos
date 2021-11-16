@@ -1,6 +1,6 @@
 ARG IMAGE_VERSION="latest"
 ARG PHP_VERSION="7.2"
-ARG ALPINE_VERSION=""
+ARG ALPINE_VERSION="3.8"
 
 # ALPINE_VERSION defines the Firefox version.
 # PHP maintaners only build PHP images for a couple variants of "selected" ALPINE_VERSION's.
@@ -19,10 +19,11 @@ ARG ALPINE_VERSION=""
 # Alpine 3.9 - firefox-esr 52.9 - works with selenium 2.53
 # Alpine 3.10 - firefox-esr 60
 # Alpine 3.12 - firefox-esr 78
+# Alpine 3.14 - firefox-esr 89
 
 # -------------------------------------------------------------------------
 
-FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as base
+FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION} as builder
 
 MAINTAINER Remus Lazar <rl@cron.eu>
 
@@ -125,6 +126,15 @@ RUN deluser www-data \
 	&& chown ${UID}:${GID} -R /var/lib/nginx \
 	&& chmod +x /github-keys.sh \
 	&& chmod +x /gitlab-keys.sh
+
+FROM builder as yq-installer
+
+# Install yq (on older alpine versions)
+RUN echo "http://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN apk update && apk add --no-cache yq
+
+FROM builder as base
+COPY --from=yq-installer /usr/bin/yq /usr/local/bin/yq
 
 # Expose ports
 EXPOSE 80 22
