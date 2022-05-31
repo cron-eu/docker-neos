@@ -104,8 +104,8 @@ RUN echo "xdebug.remote_enable=1" >> $PHP_INI_DIR/conf.d/docker-php-ext-xdebug.i
 	&& sed -i -r 's/.?PasswordAuthentication.+/PasswordAuthentication no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?ChallengeResponseAuthentication.+/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config \
 	&& sed -i -r 's/.?PermitRootLogin.+/PermitRootLogin no/' /etc/ssh/sshd_config \
-	# we use PAM to make ssh daemon to load the /etc/environment (see "00-init-ssh") \
-	&& sed -i -r 's/.?UsePAM.+/UsePAM yes/' /etc/ssh/sshd_config \
+	# we use PAM to make ssh daemon to load the /etc/environment (see "00-init-ssh"); not required for apline 3.16 \
+	&& cat /etc/alpine-release | grep "3.16">/dev/null || sed -i -r 's/.?UsePAM.+/UsePAM yes/' /etc/ssh/sshd_config \
 	&& sed -i '/secure_path/d' /etc/sudoers
 
 # Copy container-files

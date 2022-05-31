@@ -19,3 +19,6 @@ build-7.2:
 build-7.3:
 	docker buildx build --push --platform ${PLATFORM} --build-arg PHP_VERSION="7.3" --target base -t croneu/neos:7.3 .
 	docker buildx build --push --platform ${PLATFORM} --build-arg PHP_VERSION="7.3" --target behat -t croneu/neos:7.3-behat .
+
+build-8:
+	docker buildx build --push --platform ${PLATFORM} --build-arg PHP_VERSION="8" --build-arg ALPINE_VERSION="3.16" --target base -t croneu/neos:8 .

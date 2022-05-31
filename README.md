@@ -17,12 +17,13 @@ versions which run with `PHP 7.2` or `PHP 7.3`.
 
 This repository builds two distinct Docker Images:
 
-| Tag | Description |
-| ----------------- | ----------- |
-| 7.2 | PHP 7.2 based docker image, useful to run a Neos project in docker for development purposes.|
+| Tag     | Description                                                                                                   |
+|---------|---------------------------------------------------------------------------------------------------------------|
+| 7.2     | PHP 7.2 based docker image, useful to run a Neos project in docker for development purposes.                  |
 | 7.2-behat | PHP 7.2 based image with some add-ons for behat tests (supports also unattended use for e.g. circleCI/Travis) |
-| 7.3 | PHP 7.3 based docker image, useful to run a Neos project in docker for development purposes.|
+| 7.3     | PHP 7.3 based docker image, useful to run a Neos project in docker for development purposes.                  |
 | 7.3-behat | PHP 7.3 based image with some add-ons for behat tests (supports also unattended use for e.g. circleCI/Travis) |
+| 8       | PHP 8.x based docker image, useful to run a Neos 8 project in docker for development purposes.                |
 
 ## Usage in a nutshell
 
@@ -323,7 +324,7 @@ This will create both images from scratch
 Use the available targets in the `Makefile`, e.g.
 
 ```
-make build-7.3
+make build-8
 ```
 
 Important note: There is no automation on Docker Hub to build Docker Images other than `latest`.
@@ -331,7 +332,7 @@ Use the `push-*` targets in the Makefile to push the images to Docker Hub.
 
 ```
 docker login
-make push-7.3
+make push-8
 ```
 
 ### Test the Docker Image
