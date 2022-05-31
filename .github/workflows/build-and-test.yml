@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         target: [ base, behat ]
-        php-version: [7.2, 7.3]
+        php-version: [7.2, 7.3, 8]
 
     steps:
       -

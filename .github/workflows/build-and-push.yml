@@ -19,6 +19,13 @@ jobs:
             docker-tag: ''
           - target: behat
             docker-tag: '-behat'
+            # use specific alpine versions for various php versions
+          - php-version: 7.2
+            alpine-version: 3.8
+          - php-version: 7.3
+            alpine-version: 3.8
+          - php-version: 8
+            alpine-version: 3.16
 
     steps:
       -
